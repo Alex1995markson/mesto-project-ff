@@ -8,6 +8,9 @@ const DOM_SELECTORS = {
   formPopup: ".popup_type_new-card .popup__form",
   inputName: ".popup__input_type_card-name",
   inputUrl: ".popup__input_type_url",
+  imgContainerPopup: ".popup_type_image",
+  imgPopup: ".popup__image",
+  namePopup: ".popup__caption",
 };
 
 // Кэширование DOM элементов
@@ -19,6 +22,9 @@ const domElements = {
   inputName: document.querySelector(DOM_SELECTORS.inputName),
   inputUrl: document.querySelector(DOM_SELECTORS.inputUrl),
   formPopup: document.querySelector(DOM_SELECTORS.formPopup),
+  imgContainerPopup: document.querySelector(DOM_SELECTORS.imgContainerPopup),
+  imgPopup: document.querySelector(DOM_SELECTORS.imgPopup),
+  namePopup: document.querySelector(DOM_SELECTORS.namePopup),
 };
 
 // Утилиты для работы с попапами
@@ -62,7 +68,28 @@ const cardUtils = {
 
     cardElement.querySelector(".card__title").textContent = name;
 
+    // Добавляем обработчик клика на изображение
+    cardImage.addEventListener('click', () => this.openImagePopup(link, name));
+
     return cardElement;
+  },
+
+  openImagePopup(imageUrl, imageAlt) {
+    // Устанавливаем изображение
+    const imgElement = domElements.imgPopup
+    imgElement.src = imageUrl;
+    imgElement.alt = imageAlt;
+    
+    // Устанавливаем подпись
+    const captionElement = domElements.namePopup;
+    captionElement.textContent = imageAlt;
+    
+    // Открываем попап
+    popupUtils.open(domElements.imgContainerPopup);
+
+    // Добавляем обработчики событий
+    domElements.imgContainerPopup.addEventListener('click', () => popupUtils.close(domElements.imgContainerPopup));
+
   },
 
   setupCardEventListeners(cardElement) {
@@ -74,6 +101,7 @@ const cardUtils = {
       .querySelector(".card__delete-button")
       .addEventListener("click", () => this.deleteCard(cardElement));
   },
+
   handleLikeClick(evt) {
     evt.target.classList.toggle("card__like-button_is-active");
   },
