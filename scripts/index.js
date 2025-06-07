@@ -69,27 +69,23 @@ const cardUtils = {
     cardElement.querySelector(".card__title").textContent = name;
 
     // Добавляем обработчик клика на изображение
-    cardImage.addEventListener('click', () => this.openImagePopup(link, name));
+    cardImage.addEventListener("click", () => this.openImagePopup(link, name));
 
     return cardElement;
   },
 
   openImagePopup(imageUrl, imageAlt) {
     // Устанавливаем изображение
-    const imgElement = domElements.imgPopup
+    const imgElement = domElements.imgPopup;
     imgElement.src = imageUrl;
     imgElement.alt = imageAlt;
-    
+
     // Устанавливаем подпись
     const captionElement = domElements.namePopup;
     captionElement.textContent = imageAlt;
-    
+
     // Открываем попап
     popupUtils.open(domElements.imgContainerPopup);
-
-    // Добавляем обработчики событий
-    domElements.imgContainerPopup.addEventListener('click', () => popupUtils.close(domElements.imgContainerPopup));
-
   },
 
   setupCardEventListeners(cardElement) {
@@ -166,6 +162,10 @@ function initApp() {
       DOM_SELECTORS.newCardForm
     );
   }
+  // Добавляем обработчики событий
+  domElements.imgContainerPopup.addEventListener("click", () => {
+    popupUtils.close(domElements.imgContainerPopup);
+  });
 }
 
 // Запуск приложения после загрузки DOM
