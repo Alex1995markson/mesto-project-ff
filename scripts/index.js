@@ -5,7 +5,7 @@ const DOM_SELECTORS = {
   newCardPopup: ".popup_type_new-card",
   closeNewCardButton: ".popup__close",
   cardTemplate: "#card-template",
-  formPopup: ".popup_type_new-card .popup__form",
+  newCardForm: ".popup_type_new-card .popup__form",
   inputName: ".popup__input_type_card-name",
   inputUrl: ".popup__input_type_url",
   imgContainerPopup: ".popup_type_image",
@@ -21,7 +21,7 @@ const domElements = {
   cardTemplate: document.querySelector(DOM_SELECTORS.cardTemplate).content,
   inputName: document.querySelector(DOM_SELECTORS.inputName),
   inputUrl: document.querySelector(DOM_SELECTORS.inputUrl),
-  formPopup: document.querySelector(DOM_SELECTORS.formPopup),
+  newCardForm: document.querySelector(DOM_SELECTORS.newCardForm),
   imgContainerPopup: document.querySelector(DOM_SELECTORS.imgContainerPopup),
   imgPopup: document.querySelector(DOM_SELECTORS.imgPopup),
   namePopup: document.querySelector(DOM_SELECTORS.namePopup),
@@ -128,7 +128,7 @@ const cardUtils = {
     this.addCard({ name, link });
 
     popupUtils.close(domElements.newCardPopup);
-    domElements.formPopup.reset();
+    domElements.newCardForm.reset();
 
     console.log("Форма отправлена:", { name, link });
   },
@@ -156,14 +156,14 @@ function initApp() {
   );
 
   // Обработчик отправки формы
-  if (domElements.formPopup) {
-    domElements.formPopup.addEventListener("submit", (evt) => {
+  if (domElements.newCardForm) {
+    domElements.newCardForm.addEventListener("submit", (evt) => {
       cardUtils.handleFormSubmit(evt);
     });
   } else {
     console.error(
       "Форма не найдена! Проверьте селектор:",
-      DOM_SELECTORS.formPopup
+      DOM_SELECTORS.newCardForm
     );
   }
 }
