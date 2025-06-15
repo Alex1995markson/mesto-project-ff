@@ -1,93 +1,49 @@
 import "./pages/index.css";
-
-
-const initialCards = [
-    {
-      name: "Архыз",
-      link: "https://pictures.s3.yandex.net/frontend-developer/cards-compressed/arkhyz.jpg",
-    },
-    {
-      name: "Челябинская область",
-      link: "https://pictures.s3.yandex.net/frontend-developer/cards-compressed/chelyabinsk-oblast.jpg",
-    },
-    {
-      name: "Иваново",
-      link: "https://pictures.s3.yandex.net/frontend-developer/cards-compressed/ivanovo.jpg",
-    },
-    {
-      name: "Камчатка",
-      link: "https://pictures.s3.yandex.net/frontend-developer/cards-compressed/kamchatka.jpg",
-    },
-    {
-      name: "Холмогорский район",
-      link: "https://pictures.s3.yandex.net/frontend-developer/cards-compressed/kholmogorsky-rayon.jpg",
-    },
-    {
-      name: "Байкал",
-      link: "https://pictures.s3.yandex.net/frontend-developer/cards-compressed/baikal.jpg",
-    }
-];
+import { initialCards } from "./scripts/initial_data";
+import {createPopupUtils} from "./scripts/components/model"
 
 // Константы DOM элементов
 const DOM_SELECTORS = {
-  addButton: ".profile__add-button",
-  cardsContainer: ".places__list",
-  newCardPopup: ".popup_type_new-card",
-  closeNewCardButton: ".popup__close",
-  cardTemplate: "#card-template",
-  newCardForm: ".popup_type_new-card .popup__form",
+  addButton: ".profile__add-button", // добавить новую карточку
+  cardsContainer: ".places__list",   // место для карточкек
+
+  newCardPopup: ".popup_type_new-card", // новая карточка попап
+  newCardForm: ".popup_type_new-card .popup__form", // форма для новой карточки
   inputName: ".popup__input_type_card-name",
   inputUrl: ".popup__input_type_url",
-  imgContainerPopup: ".popup_type_image",
+
+  editCardPopup: ".popup_type_edit", // попад для редактирования профиля
+  editCardForm: ".popup_type_edit .popup__form",
+  editInputName: ".popup__input_type_name",
+  editInputDescription: ".popup__input_type_description",
+  closeNewCardButton: ".popup__close",  // значок закрытия попапа
+
+  imgContainerPopup: ".popup_type_image", // попап всплывающее окно с картинкой
   imgPopup: ".popup__image",
   namePopup: ".popup__caption",
+
+  cardTemplate: "#card-template", // шаблон для создания карточек
 };
 
-// Кэширование DOM элементов
-const domElements = {
-  addButton: document.querySelector(DOM_SELECTORS.addButton),
-  cardsContainer: document.querySelector(DOM_SELECTORS.cardsContainer),
-  newCardPopup: document.querySelector(DOM_SELECTORS.newCardPopup),
-  cardTemplate: document.querySelector(DOM_SELECTORS.cardTemplate).content,
-  inputName: document.querySelector(DOM_SELECTORS.inputName),
-  inputUrl: document.querySelector(DOM_SELECTORS.inputUrl),
-  newCardForm: document.querySelector(DOM_SELECTORS.newCardForm),
-  imgContainerPopup: document.querySelector(DOM_SELECTORS.imgContainerPopup),
-  imgPopup: document.querySelector(DOM_SELECTORS.imgPopup),
-  namePopup: document.querySelector(DOM_SELECTORS.namePopup),
+// кэшируем переменные DOM
+const cacheDomElements = () => {
+  const elements = {};
+  
+  Object.entries(DOM_SELECTORS).forEach(([key, selector]) => {
+    elements[key] = document.querySelector(selector)
+  });
+  elements.cardTemplate = elements.cardTemplate.content;
+  
+  return elements;
 };
 
-// Утилиты для работы с попапами
-const popupUtils = {
-  open(popup) {
-    popup.classList.add("popup_is-opened");
-    document.addEventListener("keydown", this.handleEscapeKey);
-  },
-
-  close(popup) {
-    popup.classList.remove("popup_is-opened");
-    document.removeEventListener("keydown", this.handleEscapeKey);
-  },
-
-  handleEscapeKey(evt) {
-    if (evt.key === "Escape") {
-      const openedPopup = document.querySelector(".popup_is-opened");
-      if (openedPopup) {
-        this.close(openedPopup);
-      }
-    }
-  },
-
-  handleOverlayClick(evt) {
-    if (evt.target === evt.currentTarget) {
-      this.close(evt.currentTarget);
-    }
-  },
-};
+const domElements = cacheDomElements()
+const popupUtils = createPopupUtils();
 
 // Функции для работы с карточками
 const cardUtils = {
   createCardElement({ name, link }) {
+    // пересмотреть как можно обозначить эту переменную
     const cardElement = domElements.cardTemplate
       .querySelector(".places__item")
       .cloneNode(true);
@@ -115,7 +71,7 @@ const cardUtils = {
     captionElement.textContent = imageAlt;
 
     // Открываем попап
-    popupUtils.open(domElements.imgContainerPopup);
+    popupUtils.openPopup(domElements.imgContainerPopup);
   },
 
   setupCardEventListeners(cardElement) {
@@ -167,14 +123,14 @@ function initApp() {
 
   // Настройка обработчиков событий
   domElements.addButton.addEventListener("click", () =>
-    popupUtils.open(domElements.newCardPopup)
+    popupUtils.openPopup(domElements.newCardPopup)
   );
 
   domElements.newCardPopup
     .querySelector(DOM_SELECTORS.closeNewCardButton)
     .addEventListener("click", () =>
-      popupUtils.close(domElements.newCardPopup)
-    );
+      popupUtils.closePopup(domElements.newCardPopup)
+    );  
 
   domElements.newCardPopup.addEventListener(
     "mousedown",
@@ -194,7 +150,7 @@ function initApp() {
   }
   // Добавляем обработчики событий
   domElements.imgContainerPopup.addEventListener("click", () => {
-    popupUtils.close(domElements.imgContainerPopup);
+    popupUtils.closePopup(domElements.imgContainerPopup);
   });
 }
 
