@@ -1,4 +1,4 @@
-const createCardUtils = (domElements, popupUtils) => {
+export const createCardUtils = (domElements, popupUtils) => {
   const createCardElement = ({ name, link }) => {
     const cardElement = domElements.cardTemplate
       .querySelector(".places__item")
@@ -13,7 +13,7 @@ const createCardUtils = (domElements, popupUtils) => {
 
     return cardElement;
   };
-
+  // создаем свой popup с открытием нужной нам картинки
   const openImagePopup = (imageUrl, imageAlt) => {
     domElements.imgPopup.src = imageUrl;
     domElements.imgPopup.alt = imageAlt;
@@ -21,12 +21,24 @@ const createCardUtils = (domElements, popupUtils) => {
     popupUtils.openPopup(domElements.imgContainerPopup);
   };
 
+  const addCard = (cardData, position = "start") => {
+    const cardElement = createCardElement(cardData);
+    setupCardEventListeners(cardElement);
+    if (position === "end") {
+      domElements.cardsContainer.append(cardElement);
+    } else {
+      domElements.cardsContainer.prepend(cardElement); // По умолчанию добавляем в начало
+    }
+  };
+  const deleteCard = (cardElement) => {
+    cardElement.remove();
+  };
   const handleLikeClick = (evt) => {
     evt.target.classList.toggle("card__like-button_is-active");
   };
 
-  const deleteCard = (cardElement) => {
-    cardElement.remove();
+  const renderInitialCards = (cards) => {
+    cards.forEach((cardData) => addCard(cardData));
   };
 
   const setupCardEventListeners = (cardElement) => {
@@ -37,16 +49,6 @@ const createCardUtils = (domElements, popupUtils) => {
     cardElement
       .querySelector(".card__delete-button")
       .addEventListener("click", () => deleteCard(cardElement));
-  };
-
-  const addCard = (cardData) => {
-    const cardElement = createCardElement(cardData);
-    setupCardEventListeners(cardElement);
-    domElements.cardsContainer.append(cardElement);
-  };
-
-  const renderInitialCards = (cards) => {
-    cards.forEach((cardData) => addCard(cardData));
   };
 
   const handleFormSubmit = (evt) => {
@@ -61,8 +63,7 @@ const createCardUtils = (domElements, popupUtils) => {
 
   return {
     renderInitialCards,
-    handleFormSubmit,
     addCard,
-    openImagePopup
+    handleFormSubmit,
   };
 };

@@ -9,7 +9,7 @@ export const createPopupUtils = () => {
   const openPopup = (popup) => {
     popup.classList.add("popup_is-opened");
     popup.addEventListener("keydown", handleEscapeKey);
-    popup.addEventListener('click', handlePopupClick)
+    popup.addEventListener("click", handlePopupClick);
   };
 
   const closePopup = (popup) => {
@@ -29,5 +29,5 @@ export const createPopupUtils = () => {
     }
   };
 
-  return { openPopup, closePopup};
+  return { openPopup, closePopup };
 };
