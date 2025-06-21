@@ -7,27 +7,44 @@ export const createPopupUtils = () => {
   };
 
   const openPopup = (popup) => {
+    popup.classList.remove("popup_is-animated");
     popup.classList.add("popup_is-opened");
-    popup.addEventListener("keydown", handleEscapeKey);
+
+    document.addEventListener("keydown", handleEscapeKey);
     popup.addEventListener("click", handlePopupClick);
   };
 
   const closePopup = (popup) => {
+    const handleTransitionEnd = () => {
+      popup.classList.add("popup_is-animated");
+      popup.removeEventListener("transitionend", handleTransitionEnd);
+    };
+
+    popup.addEventListener("transitionend", handleTransitionEnd);
     popup.classList.remove("popup_is-opened");
-    popup.removeEventListener("keydown", handlePopupClick);
+
+    document.removeEventListener("keydown", handleEscapeKey);
     popup.removeEventListener("click", handlePopupClick);
   };
 
   const handlePopupClick = (evt) => {
-    // Закрытие по крестику
-    if (evt.target.classList.contains("popup__close")) {
-      closePopup(evt.currentTarget);
-    }
-    // Закрытие по клику вне контента (на оверлей)
-    else if (evt.target === evt.currentTarget) {
+    if (
+      evt.target.classList.contains("popup__close") ||
+      evt.target === evt.currentTarget
+    ) {
       closePopup(evt.currentTarget);
     }
   };
 
-  return { openPopup, closePopup };
+  const initPopups = () => {
+    document.querySelectorAll(".popup").forEach((popup) => {
+      popup.classList.add("popup_is-animated");
+    });
+  };
+
+  return {
+    openPopup,
+    closePopup,
+    initPopups,
+  };
 };

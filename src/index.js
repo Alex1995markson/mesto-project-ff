@@ -2,6 +2,7 @@ import "./pages/index.css";
 import { initialCards } from "./scripts/initial_data";
 import { createPopupUtils } from "./scripts/components/modal_windows";
 import { createCardUtils } from "./scripts/components/card";
+
 // Константы DOM элементов
 const DOM_SELECTORS = {
   addButtonCard: ".profile__add-button", // добавить новую карточку
@@ -30,7 +31,6 @@ const DOM_SELECTORS = {
   cardTemplate: "#card-template", // шаблон для создания карточек
 };
 
-// кэшируем переменные DOM
 const cacheDomElements = () => {
   const elements = {};
 
@@ -65,9 +65,8 @@ const profileUtils = {
   },
 };
 
-// Инициализация приложения
 function initApp() {
-  // Рендер начальных карточек
+  popupUtils.initPopups();
   cardUtils.renderInitialCards(initialCards);
 
   // Настройка обработчиков событий (появление попада для добавления картинки)
@@ -83,6 +82,7 @@ function initApp() {
   domElements.imgContainerPopup.addEventListener("click", () => {
     popupUtils.closePopup(domElements.imgContainerPopup);
   });
+
   domElements.editCardForm.addEventListener(
     "submit",
     profileUtils.handleEditFormSubmit
@@ -93,6 +93,5 @@ function initApp() {
     cardUtils.handleFormSubmit
   );
 }
-
 // Запуск приложения после загрузки DOM
 document.addEventListener("DOMContentLoaded", initApp);
