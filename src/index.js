@@ -5,96 +5,105 @@ import { createCardUtils } from "./scripts/components/card";
 
 // Константы DOM элементов
 const DOM_SELECTORS = {
-  addButtonCard: ".profile__add-button", // добавить новую карточку
+  // Элементы профиля
+  profileTitle: ".profile__title",
+  profileDescription: ".profile__description",
   addButtonEditProfile: ".profile__edit-button",
-  cardsContainer: ".places__list", // место для карточкек
-
-  newCardPopup: ".popup_type_new-card", // новая карточка попап
-  newCardForm: ".popup_type_new-card .popup__form", // форма для новой карточки
-  inputName: ".popup__input_type_card-name",
-  inputUrl: ".popup__input_type_url",
-
-  editCardPopup: ".popup_type_edit", // попад для редактирования профиля
+  
+  // Элементы карточек
+  addButtonCard: ".profile__add-button",
+  cardsContainer: ".places__list",
+  cardTemplate: "#card-template",
+  
+  // Попапы и их элементы
+  editCardPopup: ".popup_type_edit",
   editCardForm: ".popup_type_edit .popup__form",
   editInputName: ".popup__input_type_name",
   editInputDescription: ".popup__input_type_description",
-  closeNewCardButton: ".popup__close", // значок закрытия попапа
-
-  imgContainerPopup: ".popup_type_image", // попап всплывающее окно с картинкой
+  
+  newCardPopup: ".popup_type_new-card",
+  newCardForm: ".popup_type_new-card .popup__form",
+  inputName: ".popup__input_type_card-name",
+  inputUrl: ".popup__input_type_url",
+  
+  imgContainerPopup: ".popup_type_image",
   imgPopup: ".popup__image",
   namePopup: ".popup__caption",
-
-  // p для имя и описания
-  profileTitle: ".profile__title",
-  profileDescription: ".profile__description",
-
-  cardTemplate: "#card-template", // шаблон для создания карточек
+  
+  closeNewCardButton: ".popup__close",
 };
 
+// Утилиты работы с DOM
 const cacheDomElements = () => {
   const elements = {};
-
   Object.entries(DOM_SELECTORS).forEach(([key, selector]) => {
     elements[key] = document.querySelector(selector);
   });
   elements.cardTemplate = elements.cardTemplate.content;
-
   return elements;
 };
 
-const domElements = cacheDomElements();
-const popupUtils = createPopupUtils();
-
-
-const profileUtils = {
-  fillProfileForm: () => {
+// Утилиты работы с профилем
+const createProfileUtils = (domElements, popupUtils) => {
+  const fillProfileForm = () => {
     domElements.editInputName.value = domElements.profileTitle.textContent;
-    domElements.editInputDescription.value =
-      domElements.profileDescription.textContent;
-  },
+    domElements.editInputDescription.value = domElements.profileDescription.textContent;
+  };
 
-  handleEditFormSubmit: (evt) => {
+  const handleEditFormSubmit = (evt) => {
     evt.preventDefault();
-
     domElements.profileTitle.textContent = domElements.editInputName.value;
-    domElements.profileDescription.textContent =
-      domElements.editInputDescription.value;
-
+    domElements.profileDescription.textContent = domElements.editInputDescription.value;
     popupUtils.closePopup(domElements.editCardPopup);
-  },
+  };
+
+  return {
+    fillProfileForm,
+    handleEditFormSubmit
+  };
 };
 
-function initApp() {
-  popupUtils.initPopups();
+// Инициализация приложения
+const initApp = () => {
+  const domElements = cacheDomElements();
+  const popupUtils = createPopupUtils();
+  const profileUtils = createProfileUtils(domElements, popupUtils);
+
+  // Функция для открытия попапа с изображением
   const openImagePopup = (imageUrl, imageAlt) => {
-  domElements.imgPopup.src = imageUrl;
-  domElements.imgPopup.alt = imageAlt;
-  domElements.namePopup.textContent = imageAlt;
-  popupUtils.openPopup(domElements.imgContainerPopup);
+    domElements.imgPopup.src = imageUrl;
+    domElements.imgPopup.alt = imageAlt;
+    domElements.namePopup.textContent = imageAlt;
+    popupUtils.openPopup(domElements.imgContainerPopup);
   };
+
+  // Инициализация утилит
+  popupUtils.initPopups();
   const cardUtils = createCardUtils(domElements, popupUtils, openImagePopup);
 
+  // Загрузка начальных данных
   cardUtils.renderInitialCards(initialCards);
 
-  // Настройка обработчиков событий (появление попада для добавления картинки)
-  domElements.addButtonCard.addEventListener("click", () =>
-    popupUtils.openPopup(domElements.newCardPopup)
-  );
-  // Настройка обработчиков событий (появление попада для редактирования подписи профиля)
-  domElements.addButtonEditProfile.addEventListener("click", () => {
-    profileUtils.fillProfileForm();
-    popupUtils.openPopup(domElements.editCardPopup);
-  });
+  // Настройка обработчиков событий
+  const setupEventListeners = () => {
+    // Карточки
+    domElements.addButtonCard.addEventListener("click", () => {
+      popupUtils.openPopup(domElements.newCardPopup);
+    });
+    
+    domElements.newCardForm.addEventListener("submit", cardUtils.handleFormSubmit);
 
-  domElements.editCardForm.addEventListener(
-    "submit",
-    profileUtils.handleEditFormSubmit
-  );
+    // Профиль
+    domElements.addButtonEditProfile.addEventListener("click", () => {
+      profileUtils.fillProfileForm();
+      popupUtils.openPopup(domElements.editCardPopup);
+    });
+    
+    domElements.editCardForm.addEventListener("submit", profileUtils.handleEditFormSubmit);
+  };
 
-  domElements.newCardForm.addEventListener(
-    "submit",
-    cardUtils.handleFormSubmit
-  );
-}
+  setupEventListeners();
+};
+
 // Запуск приложения после загрузки DOM
 document.addEventListener("DOMContentLoaded", initApp);
