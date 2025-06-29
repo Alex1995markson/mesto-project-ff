@@ -44,19 +44,8 @@ export const createCardUtils = (domElements, popupUtils, openImagePopup) => {
       .addEventListener("click", () => deleteCard(cardElement));
   };
 
-  const handleFormSubmit = (evt) => {
-    evt.preventDefault();
-    const name = domElements.inputName.value;
-    const link = domElements.inputUrl.value;
-
-    addCard({ name, link });
-    popupUtils.closePopup(domElements.newCardPopup);
-    domElements.newCardForm.reset();
-  };
-
   return {
     renderInitialCards,
     addCard,
-    handleFormSubmit,
   };
 };

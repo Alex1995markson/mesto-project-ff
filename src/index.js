@@ -9,27 +9,27 @@ const DOM_SELECTORS = {
   profileTitle: ".profile__title",
   profileDescription: ".profile__description",
   addButtonEditProfile: ".profile__edit-button",
-  
+
   // Элементы карточек
   addButtonCard: ".profile__add-button",
   cardsContainer: ".places__list",
   cardTemplate: "#card-template",
-  
+
   // Попапы и их элементы
   editCardPopup: ".popup_type_edit",
   editCardForm: ".popup_type_edit .popup__form",
   editInputName: ".popup__input_type_name",
   editInputDescription: ".popup__input_type_description",
-  
+
   newCardPopup: ".popup_type_new-card",
   newCardForm: ".popup_type_new-card .popup__form",
   inputName: ".popup__input_type_card-name",
   inputUrl: ".popup__input_type_url",
-  
+
   imgContainerPopup: ".popup_type_image",
   imgPopup: ".popup__image",
   namePopup: ".popup__caption",
-  
+
   closeNewCardButton: ".popup__close",
 };
 
@@ -47,19 +47,21 @@ const cacheDomElements = () => {
 const createProfileUtils = (domElements, popupUtils) => {
   const fillProfileForm = () => {
     domElements.editInputName.value = domElements.profileTitle.textContent;
-    domElements.editInputDescription.value = domElements.profileDescription.textContent;
+    domElements.editInputDescription.value =
+      domElements.profileDescription.textContent;
   };
 
   const handleEditFormSubmit = (evt) => {
     evt.preventDefault();
     domElements.profileTitle.textContent = domElements.editInputName.value;
-    domElements.profileDescription.textContent = domElements.editInputDescription.value;
+    domElements.profileDescription.textContent =
+      domElements.editInputDescription.value;
     popupUtils.closePopup(domElements.editCardPopup);
   };
 
   return {
     fillProfileForm,
-    handleEditFormSubmit
+    handleEditFormSubmit,
   };
 };
 
@@ -77,6 +79,17 @@ const initApp = () => {
     popupUtils.openPopup(domElements.imgContainerPopup);
   };
 
+  // Функция для обработки создания карточки
+  const handleCardFormSubmit = (evt) => {
+    evt.preventDefault();
+    const name = domElements.inputName.value;
+    const link = domElements.inputUrl.value;
+
+    cardUtils.addCard({ name, link });
+    popupUtils.closePopup(domElements.newCardPopup);
+    domElements.newCardForm.reset();
+  };
+
   // Инициализация утилит
   popupUtils.initPopups();
   const cardUtils = createCardUtils(domElements, popupUtils, openImagePopup);
@@ -90,16 +103,19 @@ const initApp = () => {
     domElements.addButtonCard.addEventListener("click", () => {
       popupUtils.openPopup(domElements.newCardPopup);
     });
-    
-    domElements.newCardForm.addEventListener("submit", cardUtils.handleFormSubmit);
+
+    domElements.newCardForm.addEventListener("submit", handleCardFormSubmit);
 
     // Профиль
     domElements.addButtonEditProfile.addEventListener("click", () => {
       profileUtils.fillProfileForm();
       popupUtils.openPopup(domElements.editCardPopup);
     });
-    
-    domElements.editCardForm.addEventListener("submit", profileUtils.handleEditFormSubmit);
+
+    domElements.editCardForm.addEventListener(
+      "submit",
+      profileUtils.handleEditFormSubmit
+    );
   };
 
   setupEventListeners();
