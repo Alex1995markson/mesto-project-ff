@@ -45,7 +45,6 @@ const cacheDomElements = () => {
 const domElements = cacheDomElements();
 const popupUtils = createPopupUtils();
 
-const cardUtils = createCardUtils(domElements, popupUtils);
 
 const profileUtils = {
   fillProfileForm: () => {
@@ -67,6 +66,14 @@ const profileUtils = {
 
 function initApp() {
   popupUtils.initPopups();
+  const openImagePopup = (imageUrl, imageAlt) => {
+  domElements.imgPopup.src = imageUrl;
+  domElements.imgPopup.alt = imageAlt;
+  domElements.namePopup.textContent = imageAlt;
+  popupUtils.openPopup(domElements.imgContainerPopup);
+  };
+  const cardUtils = createCardUtils(domElements, popupUtils, openImagePopup);
+
   cardUtils.renderInitialCards(initialCards);
 
   // Настройка обработчиков событий (появление попада для добавления картинки)

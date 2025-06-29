@@ -1,4 +1,4 @@
-export const createCardUtils = (domElements, popupUtils) => {
+export const createCardUtils = (domElements, popupUtils, openImagePopup) => {
   const createCardElement = ({ name, link }) => {
     const cardElement = domElements.cardTemplate
       .querySelector(".places__item")
@@ -12,13 +12,6 @@ export const createCardUtils = (domElements, popupUtils) => {
     cardImage.addEventListener("click", () => openImagePopup(link, name));
 
     return cardElement;
-  };
-  // создаем свой popup с открытием нужной нам картинки
-  const openImagePopup = (imageUrl, imageAlt) => {
-    domElements.imgPopup.src = imageUrl;
-    domElements.imgPopup.alt = imageAlt;
-    domElements.namePopup.textContent = imageAlt;
-    popupUtils.openPopup(domElements.imgContainerPopup);
   };
 
   const addCard = (cardData, position = "start") => {
