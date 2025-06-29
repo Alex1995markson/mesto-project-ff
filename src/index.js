@@ -1,6 +1,6 @@
 import "./pages/index.css";
-import { initialCards } from "./scripts/initial_data";
-import { createPopupUtils } from "./scripts/components/modal_windows";
+import { initialCards } from "./scripts/initialData";
+import { createPopupUtils } from "./scripts/components/modalWindows";
 import { createCardUtils } from "./scripts/components/card";
 
 // Константы DOM элементов
@@ -77,10 +77,6 @@ function initApp() {
   domElements.addButtonEditProfile.addEventListener("click", () => {
     profileUtils.fillProfileForm();
     popupUtils.openPopup(domElements.editCardPopup);
-  });
-  // Добавляем обработчики событий (закрытия изображения и подписи)
-  domElements.imgContainerPopup.addEventListener("click", () => {
-    popupUtils.closePopup(domElements.imgContainerPopup);
   });
 
   domElements.editCardForm.addEventListener(

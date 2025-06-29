@@ -7,7 +7,6 @@ export const createPopupUtils = () => {
   };
 
   const openPopup = (popup) => {
-    popup.classList.remove("popup_is-animated");
     popup.classList.add("popup_is-opened");
 
     document.addEventListener("keydown", handleEscapeKey);
@@ -16,7 +15,6 @@ export const createPopupUtils = () => {
 
   const closePopup = (popup) => {
     const handleTransitionEnd = () => {
-      popup.classList.add("popup_is-animated");
       popup.removeEventListener("transitionend", handleTransitionEnd);
     };
 
