@@ -40,12 +40,13 @@
         <h3 class="popup__title">Редактировать профиль</h3>
         <form class="popup__form" name="edit-profile" novalidate>
           <input type="text" name="name" class="popup__input popup__input_type_name" id="profile-name" placeholder="Имя"
-            minlength="2" maxlength="40" required>
-          <span class="popup__error profile-name-error"></span> <!-- Блок ошибки -->
+            minlength="2" maxlength="40" pattern="^[a-zA-Zа-яА-ЯёЁ\s-]+$" required>
+          <span class="popup__error profile-name-error"></span>
 
           <input type="text" name="description" class="popup__input popup__input_type_description"
-            id="profile-description" placeholder="Занятие" minlength="2" maxlength="200" required>
-          <span class="popup__error profile-description-error"></span> <!-- Блок ошибки -->
+            id="profile-description" placeholder="Занятие" minlength="2" maxlength="200"
+            pattern="^[a-zA-Zа-яА-ЯёЁ\s-]+$" required>
+          <span class="popup__error profile-description-error"></span>
 
           <button type="submit" class="button popup__button">Сохранить</button>
         </form>
@@ -58,11 +59,11 @@
         <form class="popup__form" name="new-place" novalidate>
           <input type="text" name="place-name" class="popup__input popup__input_type_card-name" id="card-name"
             placeholder="Название" required>
-          <span class="popup__error card-name-error"></span> <!-- Блок ошибки -->
+          <span class="popup__error card-name-error"></span> 
 
           <input type="url" name="link" class="popup__input popup__input_type_url" id="card-url"
             placeholder="Ссылка на картинку" required>
-          <span class="popup__error card-url-error"></span> <!-- Блок ошибки -->
+          <span class="popup__error card-url-error"></span> 
 
           <button type="submit" class="button popup__button">Сохранить</button>
         </form>
