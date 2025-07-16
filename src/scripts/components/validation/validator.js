@@ -1,7 +1,9 @@
-const ErrorDescriptionTextInput = "Разрешены только латинские, кириллические буквы, знаки дефиса и пробелы"
-const ErrorDescriptionUrlInput = "Введите корректный URL (начинается с http:// или https://)"
-const regexPatternTextInput = /^[a-zA-Zа-яА-ЯёЁ\s-]+$/u
-const regexPatternUrlInput = /^https?:\/\/.+/
+import {
+  ErrorDescriptionTextInput,
+  ErrorDescriptionUrlInput,
+  regexPatternTextInput,
+  regexPatternUrlInput,
+} from "./constants";
 
 const showInputError = (formElement, inputElement, errorMessage, config) => {
   const errorElement = formElement.querySelector(`.${inputElement.id}-error`);
@@ -17,54 +19,67 @@ const hideInputError = (formElement, inputElement, config) => {
   errorElement.textContent = "";
 };
 
+
 const checkInputValidity = (formElement, inputElement, config) => {
   const validationRules = {
-    'profile-name': {
+    "profile-name": {
       regex: regexPatternTextInput,
-      errorMessage: ErrorDescriptionTextInput
+      errorMessage: ErrorDescriptionTextInput,
     },
-    'profile-description': {
+    "profile-description": {
       regex: regexPatternTextInput,
-      errorMessage: ErrorDescriptionTextInput
+      errorMessage: ErrorDescriptionTextInput,
     },
-    'card-name': {
+    "card-name": {
       regex: regexPatternTextInput,
-      errorMessage: ErrorDescriptionTextInput
+      errorMessage: ErrorDescriptionTextInput,
     },
-    'card-url': {
+    "card-url": {
       regex: regexPatternUrlInput,
-      errorMessage: ErrorDescriptionUrlInput
-    }
+      errorMessage: ErrorDescriptionUrlInput,
+    },
   };
 
   const rule = validationRules[inputElement.id] || {};
-  const isValidPattern = rule.regex ? rule.regex.test(inputElement.value) : true;
+  const isValidPattern = rule.regex
+    ? rule.regex.test(inputElement.value)
+    : true;
 
   if (!isValidPattern) {
     inputElement.setCustomValidity(rule.errorMessage || "");
-    showInputError(formElement, inputElement, rule.errorMessage || inputElement.validationMessage, config);
+    showInputError(
+      formElement,
+      inputElement,
+      rule.errorMessage || inputElement.validationMessage,
+      config
+    );
   } else {
     inputElement.setCustomValidity("");
     hideInputError(formElement, inputElement, config);
   }
 
   if (!inputElement.validity.valid) {
-    showInputError(formElement, inputElement, inputElement.validationMessage, config);
+    showInputError(
+      formElement,
+      inputElement,
+      inputElement.validationMessage,
+      config
+    );
   }
 };
 
 const hasInvalidInput = (inputList) => {
   const validationRules = {
-    'profile-name': regexPatternTextInput,
-    'profile-description': regexPatternTextInput,
-    'card-name': regexPatternTextInput,
-    'card-url': regexPatternUrlInput
+    "profile-name": regexPatternTextInput,
+    "profile-description": regexPatternTextInput,
+    "card-name": regexPatternTextInput,
+    "card-url": regexPatternUrlInput,
   };
 
   return inputList.some((inputElement) => {
     const rule = validationRules[inputElement.id];
     const isValidPattern = rule ? rule.test(inputElement.value) : true;
-    
+
     return !isValidPattern || !inputElement.validity.valid;
   });
 };
@@ -80,7 +95,9 @@ const toggleButtonState = (inputList, buttonElement, config) => {
 };
 
 const setEventListeners = (formElement, config) => {
-  const inputList = Array.from(formElement.querySelectorAll(config.inputSelector))
+  const inputList = Array.from(
+    formElement.querySelectorAll(config.inputSelector)
+  );
   const buttonElement = formElement.querySelector(config.submitButtonSelector);
 
   toggleButtonState(inputList, buttonElement, config);
@@ -106,8 +123,8 @@ const enableValidation = (config) => {
 // Очистка ошибок валидации
 const clearValidation = (formElement, config) => {
   const inputList = Array.from(document.querySelectorAll(config.inputSelector));
-  
-  inputList.forEach(inputElement => {
+
+  inputList.forEach((inputElement) => {
     hideInputError(formElement, inputElement, config);
     inputElement.setCustomValidity(""); // Сбрасываем кастомные сообщения
   });
