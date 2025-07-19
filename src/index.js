@@ -4,20 +4,8 @@ import { validationConfig, DOM_SELECTORS } from "./scripts/settings.js";
 import { createProfileUtils } from "./scripts/components/profileUtils.js";
 import { createPopupUtils } from "./scripts/components/modalWindows";
 import { createCardUtils } from "./scripts/components/card";
-import {
-  enableValidation,
-  clearValidation,
-} from "./scripts/components/validation/validator.js";
-import {
-  getUserInfo,
-  getInitialCards,
-  editProfile,
-  addCard,
-  deleteCard,
-  likeCard,
-  dislikeCard,
-  updateAvatar,
-} from "./scripts/api/api.js";
+import { enableValidation, clearValidation } from "./scripts/components/validation/validator.js";
+import { createProfileManager } from "./scripts/components/profileManager.js";
 
 // Утилиты работы с DOM
 const cacheDomElements = () => {
@@ -34,6 +22,8 @@ const initApp = () => {
   const domElements = cacheDomElements();
   const popupUtils = createPopupUtils();
   const profileUtils = createProfileUtils(domElements, popupUtils);
+  const cardUtils = createCardUtils(domElements, popupUtils, openImagePopup);
+  const profileManager = createProfileManager(domElements, cardUtils, initialCards);
 
   enableValidation(validationConfig);
   popupUtils.initPopups();
@@ -56,22 +46,8 @@ const initApp = () => {
     domElements.newCardForm.reset();
   };
 
-  const cardUtils = createCardUtils(domElements, popupUtils, openImagePopup);
-
-  function initRenderProfile(userData) {
-    domElements.profileTitle.textContent = userData.name;
-    domElements.profileDescription.textContent = userData.about;
-  }
   // Загрузка начальных данных
-  Promise.all([getUserInfo(), getInitialCards()])
-    .then(([userData, cards]) => {
-      initRenderProfile(userData);
-      cardUtils.renderInitialCards(cards);
-    })
-    .catch((err) => {
-      console.error("Ошибка при загрузке данных:", err);
-      cardUtils.renderInitialCards(initialCards);
-    });
+  profileManager.loadInitialData();
 
   // Настройка обработчиков событий
   const setupEventListeners = () => {
@@ -80,7 +56,6 @@ const initApp = () => {
       clearValidation(domElements.newCardForm, validationConfig);
       domElements.newCardForm.reset();
       popupUtils.openPopup(domElements.newCardPopup);
-
     });
 
     domElements.newCardForm.addEventListener("submit", handleCardFormSubmit);
