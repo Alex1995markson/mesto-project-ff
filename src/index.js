@@ -1,37 +1,23 @@
 import "./pages/index.css";
 import { initialCards } from "./scripts/initialData";
+import { validationConfig, DOM_SELECTORS } from "./scripts/settings.js";
+import { createProfileUtils } from "./scripts/components/profileUtils.js";
 import { createPopupUtils } from "./scripts/components/modalWindows";
 import { createCardUtils } from "./scripts/components/card";
-
-// Константы DOM элементов
-const DOM_SELECTORS = {
-  // Элементы профиля
-  profileTitle: ".profile__title",
-  profileDescription: ".profile__description",
-  addButtonEditProfile: ".profile__edit-button",
-
-  // Элементы карточек
-  addButtonCard: ".profile__add-button",
-  cardsContainer: ".places__list",
-  cardTemplate: "#card-template",
-
-  // Попапы и их элементы
-  editCardPopup: ".popup_type_edit",
-  editCardForm: ".popup_type_edit .popup__form",
-  editInputName: ".popup__input_type_name",
-  editInputDescription: ".popup__input_type_description",
-
-  newCardPopup: ".popup_type_new-card",
-  newCardForm: ".popup_type_new-card .popup__form",
-  inputName: ".popup__input_type_card-name",
-  inputUrl: ".popup__input_type_url",
-
-  imgContainerPopup: ".popup_type_image",
-  imgPopup: ".popup__image",
-  namePopup: ".popup__caption",
-
-  closeNewCardButton: ".popup__close",
-};
+import {
+  enableValidation,
+  clearValidation,
+} from "./scripts/components/validation/validator.js";
+import {
+  getUserInfo,
+  getInitialCards,
+  editProfile,
+  addCard,
+  deleteCard,
+  likeCard,
+  dislikeCard,
+  updateAvatar,
+} from "./scripts/api/api.js";
 
 // Утилиты работы с DOM
 const cacheDomElements = () => {
@@ -43,33 +29,14 @@ const cacheDomElements = () => {
   return elements;
 };
 
-// Утилиты работы с профилем
-const createProfileUtils = (domElements, popupUtils) => {
-  const fillProfileForm = () => {
-    domElements.editInputName.value = domElements.profileTitle.textContent;
-    domElements.editInputDescription.value =
-      domElements.profileDescription.textContent;
-  };
-
-  const handleEditFormSubmit = (evt) => {
-    evt.preventDefault();
-    domElements.profileTitle.textContent = domElements.editInputName.value;
-    domElements.profileDescription.textContent =
-      domElements.editInputDescription.value;
-    popupUtils.closePopup(domElements.editCardPopup);
-  };
-
-  return {
-    fillProfileForm,
-    handleEditFormSubmit,
-  };
-};
-
 // Инициализация приложения
 const initApp = () => {
   const domElements = cacheDomElements();
   const popupUtils = createPopupUtils();
   const profileUtils = createProfileUtils(domElements, popupUtils);
+
+  enableValidation(validationConfig);
+  popupUtils.initPopups();
 
   // Функция для открытия попапа с изображением
   const openImagePopup = (imageUrl, imageAlt) => {
@@ -84,42 +51,54 @@ const initApp = () => {
     evt.preventDefault();
     const name = domElements.inputName.value;
     const link = domElements.inputUrl.value;
-
     cardUtils.addCard({ name, link });
     popupUtils.closePopup(domElements.newCardPopup);
     domElements.newCardForm.reset();
   };
 
-  // Инициализация утилит
-  popupUtils.initPopups();
   const cardUtils = createCardUtils(domElements, popupUtils, openImagePopup);
 
+  function initRenderProfile(userData) {
+    domElements.profileTitle.textContent = userData.name;
+    domElements.profileDescription.textContent = userData.about;
+  }
   // Загрузка начальных данных
-  cardUtils.renderInitialCards(initialCards);
+  Promise.all([getUserInfo(), getInitialCards()])
+    .then(([userData, cards]) => {
+      initRenderProfile(userData);
+      cardUtils.renderInitialCards(cards);
+    })
+    .catch((err) => {
+      console.error("Ошибка при загрузке данных:", err);
+      cardUtils.renderInitialCards(initialCards);
+    });
 
   // Настройка обработчиков событий
   const setupEventListeners = () => {
     // Карточки
     domElements.addButtonCard.addEventListener("click", () => {
+      clearValidation(domElements.newCardForm, validationConfig);
+      domElements.newCardForm.reset();
       popupUtils.openPopup(domElements.newCardPopup);
+
     });
 
     domElements.newCardForm.addEventListener("submit", handleCardFormSubmit);
 
     // Профиль
     domElements.addButtonEditProfile.addEventListener("click", () => {
-      profileUtils.fillProfileForm();
+      clearValidation(domElements.editCardForm, validationConfig);
+      profileUtils.fillProfileFormWithCurrentData();
       popupUtils.openPopup(domElements.editCardPopup);
     });
 
     domElements.editCardForm.addEventListener(
       "submit",
-      profileUtils.handleEditFormSubmit
+      profileUtils.handleProfileFormSubmit
     );
   };
 
   setupEventListeners();
 };
 
-// Запуск приложения после загрузки DOM
 document.addEventListener("DOMContentLoaded", initApp);

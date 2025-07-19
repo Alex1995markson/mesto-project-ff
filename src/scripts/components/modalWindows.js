@@ -23,6 +23,23 @@ export const createPopupUtils = () => {
 
     document.removeEventListener("keydown", handleEscapeKey);
     popup.removeEventListener("click", handlePopupClick);
+
+    //   // Находим форму внутри попапа (пока под вопросом)
+    //   const form = popup.querySelector(".popup__form");
+    //   const errorSpans = form.querySelectorAll("span.popup__error");
+    //   console.log("Erros", errorSpans)
+    //   errorSpans.forEach((span) => {
+    //     span.textContent = "";
+    //     span.classList.remove("form__input-error_active");
+    //   });
+
+    //   // Если нужно очистить input'ы
+    //   if (true && form) {
+    //     const inputs = form.querySelectorAll("input");
+    //     inputs.forEach(input => {
+    //       input.value = ""; // Очищаем значение
+    //     });
+    //   }
   };
 
   const handlePopupClick = (evt) => {

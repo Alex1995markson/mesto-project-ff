@@ -14,8 +14,18 @@ const showInputError = (formElement, inputElement, errorMessage, config) => {
 
 const hideInputError = (formElement, inputElement, config) => {
   const errorElement = formElement.querySelector(`.${inputElement.id}-error`);
-  inputElement.classList.remove(config.inputErrorClass);
-  errorElement.classList.remove(config.errorClass);
+  if (!errorElement) return;
+  
+  if (inputElement.classList.contains(config.inputErrorClass)) {
+    inputElement.classList.remove(config.inputErrorClass);
+  }
+  
+  // Удаляем класс ошибки у элемента с текстом ошибки, если он есть
+  if (errorElement.classList.contains(config.errorClass)) {
+    errorElement.classList.remove(config.errorClass);
+  }
+  // inputElement.classList.remove(config.inputErrorClass);
+  // errorElement.classList.remove(config.errorClass);
   errorElement.textContent = "";
 };
 
