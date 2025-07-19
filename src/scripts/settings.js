@@ -8,6 +8,10 @@ export const validationConfig = {
   inputErrorClass: "form__input_type_error",
   errorClass: "form__input-error_active",
   // errorClass: "popup__error_visible",
+  elementProfileName: "profile-name",
+  elementProfileDescription: "profile-description",
+  elementCardName: "card-name",
+  elementCardUrl: "card-url",
 };
 
 export const DOM_SELECTORS = {

@@ -15,36 +15,32 @@ const showInputError = (formElement, inputElement, errorMessage, config) => {
 const hideInputError = (formElement, inputElement, config) => {
   const errorElement = formElement.querySelector(`.${inputElement.id}-error`);
   if (!errorElement) return;
-  
+
   if (inputElement.classList.contains(config.inputErrorClass)) {
     inputElement.classList.remove(config.inputErrorClass);
   }
-  
-  // Удаляем класс ошибки у элемента с текстом ошибки, если он есть
+
   if (errorElement.classList.contains(config.errorClass)) {
     errorElement.classList.remove(config.errorClass);
   }
-  // inputElement.classList.remove(config.inputErrorClass);
-  // errorElement.classList.remove(config.errorClass);
   errorElement.textContent = "";
 };
 
-
 const checkInputValidity = (formElement, inputElement, config) => {
   const validationRules = {
-    "profile-name": {
+    [config.elementProfileName]: {
       regex: regexPatternTextInput,
       errorMessage: ErrorDescriptionTextInput,
     },
-    "profile-description": {
+    [config.elementProfileDescription]: {
       regex: regexPatternTextInput,
       errorMessage: ErrorDescriptionTextInput,
     },
-    "card-name": {
+    [config.elementCardName]: {
       regex: regexPatternTextInput,
       errorMessage: ErrorDescriptionTextInput,
     },
-    "card-url": {
+    [config.elementCardUrl]: {
       regex: regexPatternUrlInput,
       errorMessage: ErrorDescriptionUrlInput,
     },
@@ -78,12 +74,12 @@ const checkInputValidity = (formElement, inputElement, config) => {
   }
 };
 
-const hasInvalidInput = (inputList) => {
+const hasInvalidInput = (inputList, config) => {
   const validationRules = {
-    "profile-name": regexPatternTextInput,
-    "profile-description": regexPatternTextInput,
-    "card-name": regexPatternTextInput,
-    "card-url": regexPatternUrlInput,
+    [config.elementProfileName]: regexPatternTextInput,
+    [config.elementProfileDescription]: regexPatternTextInput,
+    [config.elementCardName]: regexPatternTextInput,
+    [config.elementCardUrl]: regexPatternUrlInput,
   };
 
   return inputList.some((inputElement) => {
@@ -95,7 +91,7 @@ const hasInvalidInput = (inputList) => {
 };
 
 const toggleButtonState = (inputList, buttonElement, config) => {
-  if (hasInvalidInput(inputList)) {
+  if (hasInvalidInput(inputList, config)) {
     buttonElement.disabled = true;
     buttonElement.classList.add(config.inactiveButtonClass);
   } else {
