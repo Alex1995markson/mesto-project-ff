@@ -59,11 +59,11 @@
         <form class="popup__form" name="new-place" novalidate>
           <input type="text" name="place-name" class="popup__input popup__input_type_card-name" id="card-name"
             placeholder="Название" required>
-          <span class="popup__error card-name-error"></span> 
+          <span class="popup__error card-name-error"></span>
 
           <input type="url" name="link" class="popup__input popup__input_type_url" id="card-url"
             placeholder="Ссылка на картинку" required>
-          <span class="popup__error card-url-error"></span> 
+          <span class="popup__error card-url-error"></span>
 
           <button type="submit" class="button popup__button">Сохранить</button>
         </form>
@@ -85,7 +85,10 @@
       <div class="card__description">
         <h2 class="card__title">
         </h2>
-        <button type="button" class="card__like-button"></button>
+        <div class="card__like-wrapper">
+          <button type="button" class="card__like-button"></button>
+          <span class="card__like-count">0</span>
+        </div>
       </div>
     </li>
   </template>

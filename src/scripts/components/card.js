@@ -1,7 +1,7 @@
 import { addCard as apiAddCard } from "../api/api";
 
 export const createCardUtils = (domElements, popupUtils, openImagePopup) => {
-  const createCardElement = ({ name, link }) => {
+  const createCardElement = ({ name, link, likes = [] }) => {
     const cardElement = domElements.cardTemplate
       .querySelector(".places__item")
       .cloneNode(true);
@@ -9,6 +9,8 @@ export const createCardUtils = (domElements, popupUtils, openImagePopup) => {
     const cardImage = cardElement.querySelector(".card__image");
     cardImage.src = link;
     cardImage.alt = name;
+
+    cardElement.querySelector(".card__like-count").textContent = likes.length;
 
     cardElement.querySelector(".card__title").textContent = name;
     cardImage.addEventListener("click", () => openImagePopup(link, name));
@@ -53,7 +55,27 @@ export const createCardUtils = (domElements, popupUtils, openImagePopup) => {
   };
 
   const handleLikeClick = (evt) => {
-    evt.target.classList.toggle("card__like-button_is-active");
+    const likeButton = evt.target;
+
+    // Находим родительский контейнер
+    const likeWrapper = likeButton.closest(".card__like-wrapper");
+    if (!likeWrapper) {
+      console.error("Не найден контейнер лайков");
+      return;
+    }
+
+    // Находим счетчик
+    const likeCounter = likeWrapper.querySelector(".card__like-count");
+    if (!likeCounter) {
+      console.error("Не найден счетчик лайков");
+      return;
+    }
+
+    // Переключаем состояние лайка
+    const isActive = likeButton.classList.toggle("card__like-button_is-active");
+
+    let currentCount = parseInt(likeCounter.textContent) || 0;
+    likeCounter.textContent = isActive ? currentCount + 1 : currentCount - 1;
   };
 
   const renderInitialCards = (cards) => {
