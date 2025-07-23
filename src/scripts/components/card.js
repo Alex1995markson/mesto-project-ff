@@ -1,3 +1,5 @@
+import { addCard as apiAddCard } from "../api/api";
+
 export const createCardUtils = (domElements, popupUtils, openImagePopup) => {
   const createCardElement = ({ name, link }) => {
     const cardElement = domElements.cardTemplate
@@ -14,24 +16,47 @@ export const createCardUtils = (domElements, popupUtils, openImagePopup) => {
     return cardElement;
   };
 
-  const addCard = (cardData, position = "start") => {
+  const renderCard = (cardData, position = "start") => {
     const cardElement = createCardElement(cardData);
     setupCardEventListeners(cardElement);
+
     if (position === "end") {
       domElements.cardsContainer.append(cardElement);
     } else {
-      domElements.cardsContainer.prepend(cardElement); // По умолчанию добавляем в начало
+      domElements.cardsContainer.prepend(cardElement);
     }
   };
+
+  const addCard = (cardData) => {
+    const submitButton = domElements.newCardForm.querySelector(".popup__button");
+    const originalButtonText = submitButton.textContent;
+    submitButton.textContent = "Создание...";
+    submitButton.disabled = true;
+
+    return apiAddCard({ name: cardData.name, link: cardData.link })
+      .then((newCard) => {
+        renderCard(newCard);
+      })
+      .catch((err) => {
+        console.error("Ошибка при создании карточки:", err);
+        throw err;
+      })
+      .finally(() => {
+        submitButton.textContent = originalButtonText;
+        submitButton.disabled = false;
+      });
+  };
+
   const deleteCard = (cardElement) => {
     cardElement.remove();
   };
+
   const handleLikeClick = (evt) => {
     evt.target.classList.toggle("card__like-button_is-active");
   };
 
   const renderInitialCards = (cards) => {
-    cards.forEach((cardData) => addCard(cardData));
+    cards.forEach((cardData) => renderCard(cardData, "end")); // Для начальных карточек добавляем в конец
   };
 
   const setupCardEventListeners = (cardElement) => {
