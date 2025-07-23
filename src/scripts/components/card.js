@@ -28,7 +28,8 @@ export const createCardUtils = (domElements, popupUtils, openImagePopup) => {
   };
 
   const addCard = (cardData) => {
-    const submitButton = domElements.newCardForm.querySelector(".popup__button");
+    const submitButton =
+      domElements.newCardForm.querySelector(".popup__button");
     const originalButtonText = submitButton.textContent;
     submitButton.textContent = "Создание...";
     submitButton.disabled = true;

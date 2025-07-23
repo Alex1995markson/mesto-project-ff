@@ -1,4 +1,4 @@
-import {editProfile} from "../api/api"
+import { editProfile } from "../api/api";
 export const createProfileUtils = (domElements, popupUtils) => {
   const fillProfileFormWithCurrentData = () => {
     if (!domElements.editInputName || !domElements.editInputDescription) return;
@@ -15,10 +15,10 @@ export const createProfileUtils = (domElements, popupUtils) => {
 
     const submitButton = evt.submitter;
     const originalButtonText = submitButton.textContent;
-    submitButton.textContent = 'Сохранение...';
+    submitButton.textContent = "Сохранение...";
 
-    const name = domElements.editInputName?.value || '';
-    const about = domElements.editInputDescription?.value || '';
+    const name = domElements.editInputName?.value || "";
+    const about = domElements.editInputDescription?.value || "";
 
     editProfile({ name, about })
       .then((userData) => {
@@ -29,7 +29,7 @@ export const createProfileUtils = (domElements, popupUtils) => {
         popupUtils.closePopup(domElements.editCardPopup);
       })
       .catch((err) => {
-        console.error('Ошибка при обновлении профиля:', err);
+        console.error("Ошибка при обновлении профиля:", err);
       })
       .finally(() => {
         submitButton.textContent = originalButtonText;

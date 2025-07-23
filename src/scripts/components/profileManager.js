@@ -1,6 +1,5 @@
 import { getUserInfo, getInitialCards } from "../api/api.js";
 
-
 export const createProfileManager = (domElements, cardUtils, initialCards) => {
   // Функция рендеринга профиля
   const renderProfile = (userData) => {
@@ -25,6 +24,6 @@ export const createProfileManager = (domElements, cardUtils, initialCards) => {
 
   return {
     renderProfile,
-    loadInitialData
+    loadInitialData,
   };
 };
