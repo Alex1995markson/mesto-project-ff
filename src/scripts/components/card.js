@@ -1,4 +1,9 @@
-import { addCard as apiAddCard, deleteCard as apiDeleteCard } from "../api/api";
+import {
+  addCard as apiAddCard,
+  deleteCard as apiDeleteCard,
+  likeCard as apiLikeCard,
+  dislikeCard as apiUnlikeCard,
+} from "../api/api";
 const currentUserId = "86912a5de8fb5c0ddfcf9a3b";
 
 export const createCardUtils = (domElements, popupUtils, openImagePopup) => {
@@ -14,6 +19,13 @@ export const createCardUtils = (domElements, popupUtils, openImagePopup) => {
     cardElement.querySelector(".card__like-count").textContent = likes.length;
     cardElement.querySelector(".card__title").textContent = name;
     cardElement.dataset.cardId = _id; // Сохраняем ID карточки в data-атрибут
+
+    // Проверяем, лайкнул ли текущий пользователь карточку
+    const isLiked = likes.some(user => user._id === currentUserId);
+    const likeButton = cardElement.querySelector(".card__like-button");
+    if (isLiked) {
+      likeButton.classList.add("card__like-button_is-active");
+    }
 
     // Показываем иконку удаления только для своих карточек
     const deleteButton = cardElement.querySelector(".card__delete-button");
@@ -72,26 +84,42 @@ export const createCardUtils = (domElements, popupUtils, openImagePopup) => {
 
   const handleLikeClick = (evt) => {
     const likeButton = evt.target;
+    const cardElement = likeButton.closest(".places__item");
+    const cardId = cardElement.dataset.cardId;
+    const likeCounter = cardElement.querySelector(".card__like-count");
+    const isLiked = likeButton.classList.contains(
+      "card__like-button_is-active"
+    );
 
-    // Находим родительский контейнер
-    const likeWrapper = likeButton.closest(".card__like-wrapper");
-    if (!likeWrapper) {
-      console.error("Не найден контейнер лайков");
-      return;
-    }
+    likeButton.disabled = true;
+    const currentCount = parseInt(likeCounter.textContent) || 0;
+    likeCounter.textContent = isLiked ? currentCount - 1 : currentCount + 1;
+    likeButton.classList.toggle("card__like-button_is-active");
 
-    // Находим счетчик
-    const likeCounter = likeWrapper.querySelector(".card__like-count");
-    if (!likeCounter) {
-      console.error("Не найден счетчик лайков");
-      return;
-    }
+    const apiCall = isLiked ? apiUnlikeCard(cardId) : apiLikeCard(cardId);
 
-    // Переключаем состояние лайка
-    const isActive = likeButton.classList.toggle("card__like-button_is-active");
+    apiCall
+      .then((updatedCard) => {
+        likeCounter.textContent = updatedCard.likes.length;
 
-    let currentCount = parseInt(likeCounter.textContent) || 0;
-    likeCounter.textContent = isActive ? currentCount + 1 : currentCount - 1;
+        const isActuallyLiked = updatedCard.likes.some(
+          (user) => user._id === currentUserId
+        );
+
+        if (isActuallyLiked) {
+          likeButton.classList.add("card__like-button_is-active");
+        } else {
+          likeButton.classList.remove("card__like-button_is-active");
+        }
+      })
+      .catch((err) => {
+        console.error("Ошибка при обновлении лайка:", err);
+        likeCounter.textContent = currentCount;
+        likeButton.classList.toggle("card__like-button_is-active");
+      })
+      .finally(() => {
+        likeButton.disabled = false;
+      });
   };
 
   const renderInitialCards = (cards) => {
