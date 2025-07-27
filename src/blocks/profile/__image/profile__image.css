@@ -20,3 +20,26 @@
     margin-right: 0;
   }
 }
+
+.profile__image:hover {
+  filter: brightness(0.5);
+}
+
+.profile__image::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: url(../../../images/edit-icon.svg);
+  background-size: 26px 26px; 
+  background-position: center;
+  background-repeat: no-repeat;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.profile__image:hover::after {
+  opacity: 1;
+}
