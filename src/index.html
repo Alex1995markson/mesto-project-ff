@@ -52,6 +52,18 @@
         </form>
       </div>
     </div>
+    <div class="popup popup_type_avatar">
+      <div class="popup__content">
+        <button type="button" class="popup__close"></button>
+        <h3 class="popup__title">Обновить аватар</h3>
+        <form class="popup__form" name="edit-avatar" novalidate>
+          <input type="url" name="link" class="popup__input popup__input_avatar_url" id="avatar-url"
+            placeholder="Ссылка на картинку" required>
+          <span class="popup__error avatar-url-error"></span>
+          <button type="submit" class="button popup__button avatar__url-button">Сохранить</button>
+        </form>
+      </div>
+    </div>
     <div class="popup popup_type_new-card">
       <div class="popup__content">
         <button type="button" class="popup__close"></button>
