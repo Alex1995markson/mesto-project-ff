@@ -1,4 +1,4 @@
-import { editProfile } from "../api/api";
+import { editProfile, updateAvatar } from "../api/api";
 export const createProfileUtils = (domElements, popupUtils) => {
   const fillProfileFormWithCurrentData = () => {
     if (!domElements.editInputName || !domElements.editInputDescription) return;
@@ -36,8 +36,54 @@ export const createProfileUtils = (domElements, popupUtils) => {
       });
   };
 
+  // const handleAvatarFormSubmit = (evt) => {
+  //   evt.preventDefault();
+  //   const newAvatarUrl = domElements.inputAvatar.value;
+
+  //   // Здесь должна быть логика сохранения аватара на сервер
+  //   domElements.profileImage.style.backgroundImage = `url('${newAvatarUrl}')`;
+
+  //   popupUtils.closePopup(domElements.avatarEditPopup);
+  // };
+  const handleAvatarFormSubmit = (evt) => {
+    evt.preventDefault();
+    const avatarUrl = domElements.inputAvatar.value.trim();
+
+    const submitButton =
+      domElements.avatarEditForm.querySelector(".popup__button");
+    const originalButtonText = submitButton.textContent;
+    submitButton.textContent = "Сохранение...";
+    submitButton.disabled = true;
+
+    // Сбрасываем предыдущие ошибки
+    const errorElement =
+      domElements.avatarEditForm.querySelector(".popup__error");
+    errorElement.textContent = "";
+    errorElement.classList.remove("popup__error_visible");
+
+    return updateAvatar(avatarUrl)
+      .then((userData) => {
+        domElements.profileImage.style.backgroundImage = `url('${userData.avatar}')`;
+        popupUtils.closePopup(domElements.avatarEditPopup);
+        domElements.avatarEditForm.reset();
+        return userData;
+      })
+      .catch((err) => {
+        console.error("Ошибка при обновлении аватара:", err);
+        errorElement.textContent =
+          "Не удалось обновить аватар. Проверьте ссылку.";
+        errorElement.classList.add("popup__error_visible");
+        throw err;
+      })
+      .finally(() => {
+        submitButton.textContent = originalButtonText;
+        submitButton.disabled = false;
+      });
+  };
+
   return {
     fillProfileFormWithCurrentData,
     handleProfileFormSubmit,
+    handleAvatarFormSubmit,
   };
 };

@@ -4,7 +4,10 @@ import { validationConfig, DOM_SELECTORS } from "./scripts/settings.js";
 import { createProfileUtils } from "./scripts/components/profileUtils.js";
 import { createPopupUtils } from "./scripts/components/modalWindows";
 import { createCardUtils } from "./scripts/components/card";
-import { enableValidation, clearValidation } from "./scripts/components/validation/validator.js";
+import {
+  enableValidation,
+  clearValidation,
+} from "./scripts/components/validation/validator.js";
 import { createProfileManager } from "./scripts/components/profileManager.js";
 
 // Утилиты работы с DOM
@@ -23,7 +26,11 @@ const initApp = () => {
   const popupUtils = createPopupUtils();
   const profileUtils = createProfileUtils(domElements, popupUtils);
   const cardUtils = createCardUtils(domElements, popupUtils, openImagePopup);
-  const profileManager = createProfileManager(domElements, cardUtils, initialCards);
+  const profileManager = createProfileManager(
+    domElements,
+    cardUtils,
+    initialCards
+  );
 
   enableValidation(validationConfig);
   popupUtils.initPopups();
@@ -70,6 +77,18 @@ const initApp = () => {
     domElements.editCardForm.addEventListener(
       "submit",
       profileUtils.handleProfileFormSubmit
+    );
+
+    // Аватар
+    domElements.profileImage.addEventListener("click", () => {
+      clearValidation(domElements.avatarEditForm, validationConfig);
+      domElements.avatarEditForm.reset();
+      popupUtils.openPopup(domElements.avatarEditPopup);
+    });
+
+    domElements.avatarEditForm.addEventListener(
+      "submit",
+      profileUtils.handleAvatarFormSubmit
     );
   };
 

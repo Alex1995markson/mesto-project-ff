@@ -41,6 +41,12 @@ export const DOM_SELECTORS = {
   inputName: ".popup__input_type_card-name",
   inputUrl: ".popup__input_type_url",
 
+  // avatar-edit
+  avatarEditPopup: ".popup_type_avatar",
+  avatarEditForm: ".popup_type_avatar .popup__form",
+  inputAvatar: ".popup__input_avatar_url",
+  avatarButtonEdit: "avatar__url-button",
+
   imgContainerPopup: ".popup_type_image",
   imgPopup: ".popup__image",
   namePopup: ".popup__caption",

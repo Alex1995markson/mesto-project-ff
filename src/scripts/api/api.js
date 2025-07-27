@@ -18,12 +18,31 @@ export const editProfile = ({ name, about }) => {
   }).then(checkResponse);
 };
 
+// export const updateAvatar = (avatar) => {
+//   return fetch(`${config.baseUrl}/users/me/avatar`, {
+//     method: "PATCH",
+//     headers: config.headers,
+//     body: JSON.stringify({ avatar }),
+//   }).then(checkResponse);
+// };
 export const updateAvatar = (avatar) => {
   return fetch(`${config.baseUrl}/users/me/avatar`, {
     method: "PATCH",
     headers: config.headers,
     body: JSON.stringify({ avatar }),
-  }).then(checkResponse);
+  })
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      return checkResponse(response);
+    })
+    .catch((error) => {
+      console.error("Network error:", error);
+      throw new Error(
+        "Не удалось подключиться к серверу. Проверьте интернет-соединение."
+      );
+    });
 };
 
 // Карточки
