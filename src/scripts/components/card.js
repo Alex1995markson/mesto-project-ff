@@ -1,7 +1,8 @@
-import { addCard as apiAddCard } from "../api/api";
+import { addCard as apiAddCard, deleteCard as apiDeleteCard } from "../api/api";
+const currentUserId = "86912a5de8fb5c0ddfcf9a3b";
 
 export const createCardUtils = (domElements, popupUtils, openImagePopup) => {
-  const createCardElement = ({ name, link, likes = [] }) => {
+  const createCardElement = ({ name, link, likes = [], _id, owner }) => {
     const cardElement = domElements.cardTemplate
       .querySelector(".places__item")
       .cloneNode(true);
@@ -11,8 +12,15 @@ export const createCardUtils = (domElements, popupUtils, openImagePopup) => {
     cardImage.alt = name;
 
     cardElement.querySelector(".card__like-count").textContent = likes.length;
-
     cardElement.querySelector(".card__title").textContent = name;
+    cardElement.dataset.cardId = _id; // Сохраняем ID карточки в data-атрибут
+
+    // Показываем иконку удаления только для своих карточек
+    const deleteButton = cardElement.querySelector(".card__delete-button");
+    if (owner._id !== currentUserId) {
+      deleteButton.remove();
+    }
+
     cardImage.addEventListener("click", () => openImagePopup(link, name));
 
     return cardElement;
@@ -51,7 +59,15 @@ export const createCardUtils = (domElements, popupUtils, openImagePopup) => {
   };
 
   const deleteCard = (cardElement) => {
-    cardElement.remove();
+    const cardId = cardElement.dataset.cardId;
+    return apiDeleteCard(cardId)
+      .then(() => {
+        cardElement.remove();
+      })
+      .catch((err) => {
+        console.error("Ошибка при удалении карточки:", err);
+        throw err;
+      });
   };
 
   const handleLikeClick = (evt) => {
