@@ -14,7 +14,16 @@
   margin-top: 48px;
 }
 
-.popup__button:hover {
+.button_inactive {
+  color: #B8B8B8;
+  background: #EDEDED;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+.popup__buttonћ:hover {
   background: rgba(0, 0, 0, 0.8);
   cursor: pointer;
 }
