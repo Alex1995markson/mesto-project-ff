@@ -12,13 +12,11 @@ export const createProfileManager = (domElements, cardUtils, initialCards) => {
     return Promise.all([getUserInfo(), getInitialCards()])
       .then(([userData, cards]) => {
         renderProfile(userData);
-        cardUtils.renderInitialCards(cards);
-        return { userData, cards };
+        cardUtils.renderInitialCards(cards, userData._id);
       })
       .catch((err) => {
         console.error("Ошибка при загрузке данных:", err);
-        cardUtils.renderInitialCards(initialCards);
-        return { userData: null, cards: initialCards };
+        cardUtils.renderInitialCards(initialCards, null);
       });
   };
 
