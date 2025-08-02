@@ -36,15 +36,6 @@ export const createProfileUtils = (domElements, popupUtils) => {
       });
   };
 
-  // const handleAvatarFormSubmit = (evt) => {
-  //   evt.preventDefault();
-  //   const newAvatarUrl = domElements.inputAvatar.value;
-
-  //   // Здесь должна быть логика сохранения аватара на сервер
-  //   domElements.profileImage.style.backgroundImage = `url('${newAvatarUrl}')`;
-
-  //   popupUtils.closePopup(domElements.avatarEditPopup);
-  // };
   const handleAvatarFormSubmit = (evt) => {
     evt.preventDefault();
     const avatarUrl = domElements.inputAvatar.value.trim();
