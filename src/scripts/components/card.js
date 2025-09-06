@@ -4,42 +4,82 @@ import {
   likeCard as apiLikeCard,
   dislikeCard as apiUnlikeCard,
 } from "../api/api";
+
 const currentUserId = "86912a5de8fb5c0ddfcf9a3b";
 
 export const createCardUtils = (domElements, popupUtils, openImagePopup) => {
-  const createCardElement = ({ name, link, likes = [], _id, owner }) => {
-    const cardElement = domElements.cardTemplate
-      .querySelector(".places__item")
-      .cloneNode(true);
+  // Функция проверки существования элемента перед добавлением обработчика
+  const safeAddEventListener = (element, event, handler) => {
+    if (element) {
+      element.addEventListener(event, handler);
+    } else {
+      console.warn("Элемент не найден для добавления обработчика события");
+    }
+  };
 
-    const cardImage = cardElement.querySelector(".card__image");
-    cardImage.src = link;
-    cardImage.alt = name;
-
-    cardElement.querySelector(".card__like-count").textContent = likes.length;
-    cardElement.querySelector(".card__title").textContent = name;
-    cardElement.dataset.cardId = _id; // Сохраняем ID карточки в data-атрибут
-
-    // Проверяем, лайкнул ли текущий пользователь карточку
-    const isLiked = likes.some(user => user._id === currentUserId);
-    const likeButton = cardElement.querySelector(".card__like-button");
-    if (isLiked) {
-      likeButton.classList.add("card__like-button_is-active");
+  const createCardElement = ({ name, link, likes = [], _id, owner = {} }) => {
+    // Проверка обязательных полей
+    if (!_id || !name || !link) {
+      console.error("Неполные данные карточки:", { name, link, _id, owner });
+      return null;
     }
 
-    // Показываем иконку удаления только для своих карточек
-    const deleteButton = cardElement.querySelector(".card__delete-button");
-    if (owner._id !== currentUserId) {
-      deleteButton.remove();
+    try {
+      const cardElement = domElements.cardTemplate
+        .querySelector(".places__item")
+        .cloneNode(true);
+
+      const cardImage = cardElement.querySelector(".card__image");
+      cardImage.src = link;
+      cardImage.alt = name;
+
+      const likeCountElement = cardElement.querySelector(".card__like-count");
+      if (likeCountElement) {
+        likeCountElement.textContent = likes.length;
+      }
+
+      const titleElement = cardElement.querySelector(".card__title");
+      if (titleElement) {
+        titleElement.textContent = name;
+      }
+
+      console.log("id", _id);
+      cardElement.dataset.cardId = _id;
+
+      // Проверяем, лайкнул ли текущий пользователь карточку
+      const isLiked = likes.some(user => user && user._id === currentUserId);
+      const likeButton = cardElement.querySelector(".card__like-button");
+      if (likeButton && isLiked) {
+        likeButton.classList.add("card__like-button_is-active");
+      }
+
+      // Показываем иконку удаления только для своих карточек
+      const deleteButton = cardElement.querySelector(".card__delete-button");
+      if (deleteButton) {
+        if (owner._id !== currentUserId) {
+          deleteButton.remove();
+        }
+      }
+
+      if (cardImage) {
+        cardImage.addEventListener("click", () => openImagePopup(link, name));
+      }
+
+      return cardElement;
+    } catch (error) {
+      console.error("Ошибка при создании элемента карточки:", error);
+      return null;
     }
-
-    cardImage.addEventListener("click", () => openImagePopup(link, name));
-
-    return cardElement;
   };
 
   const renderCard = (cardData, position = "start") => {
     const cardElement = createCardElement(cardData);
+    
+    if (!cardElement) {
+      console.warn("Не удалось создать элемент карточки", cardData);
+      return;
+    }
+    
     setupCardEventListeners(cardElement);
 
     if (position === "end") {
@@ -50,11 +90,13 @@ export const createCardUtils = (domElements, popupUtils, openImagePopup) => {
   };
 
   const addCard = (cardData) => {
-    const submitButton =
-      domElements.newCardForm.querySelector(".popup__button");
-    const originalButtonText = submitButton.textContent;
-    submitButton.textContent = "Создание...";
-    submitButton.disabled = true;
+    const submitButton = domElements.newCardForm?.querySelector(".popup__button");
+    const originalButtonText = submitButton?.textContent || "Создать";
+    
+    if (submitButton) {
+      submitButton.textContent = "Создание...";
+      submitButton.disabled = true;
+    }
 
     return apiAddCard({ name: cardData.name, link: cardData.link })
       .then((newCard) => {
@@ -65,8 +107,10 @@ export const createCardUtils = (domElements, popupUtils, openImagePopup) => {
         throw err;
       })
       .finally(() => {
-        submitButton.textContent = originalButtonText;
-        submitButton.disabled = false;
+        if (submitButton) {
+          submitButton.textContent = originalButtonText;
+          submitButton.disabled = false;
+        }
       });
   };
 
@@ -85,25 +129,32 @@ export const createCardUtils = (domElements, popupUtils, openImagePopup) => {
   const handleLikeClick = (evt) => {
     const likeButton = evt.target;
     const cardElement = likeButton.closest(".places__item");
+    
+    if (!cardElement) return;
+    
     const cardId = cardElement.dataset.cardId;
     const likeCounter = cardElement.querySelector(".card__like-count");
-    const isLiked = likeButton.classList.contains(
-      "card__like-button_is-active"
-    );
+    const isLiked = likeButton.classList.contains("card__like-button_is-active");
 
     likeButton.disabled = true;
-    const currentCount = parseInt(likeCounter.textContent) || 0;
-    likeCounter.textContent = isLiked ? currentCount - 1 : currentCount + 1;
+    const currentCount = parseInt(likeCounter?.textContent) || 0;
+    
+    if (likeCounter) {
+      likeCounter.textContent = isLiked ? currentCount - 1 : currentCount + 1;
+    }
+    
     likeButton.classList.toggle("card__like-button_is-active");
 
     const apiCall = isLiked ? apiUnlikeCard(cardId) : apiLikeCard(cardId);
 
     apiCall
       .then((updatedCard) => {
-        likeCounter.textContent = updatedCard.likes.length;
+        if (likeCounter) {
+          likeCounter.textContent = updatedCard.likes.length;
+        }
 
         const isActuallyLiked = updatedCard.likes.some(
-          (user) => user._id === currentUserId
+          (user) => user && user._id === currentUserId
         );
 
         if (isActuallyLiked) {
@@ -114,7 +165,9 @@ export const createCardUtils = (domElements, popupUtils, openImagePopup) => {
       })
       .catch((err) => {
         console.error("Ошибка при обновлении лайка:", err);
-        likeCounter.textContent = currentCount;
+        if (likeCounter) {
+          likeCounter.textContent = currentCount;
+        }
         likeButton.classList.toggle("card__like-button_is-active");
       })
       .finally(() => {
@@ -123,17 +176,31 @@ export const createCardUtils = (domElements, popupUtils, openImagePopup) => {
   };
 
   const renderInitialCards = (cards) => {
-    cards.forEach((cardData) => renderCard(cardData, "end")); // Для начальных карточек добавляем в конец
+    if (!cards || !Array.isArray(cards)) {
+      console.error("Некорректные данные карточек:", cards);
+      return;
+    }
+    
+    cards.forEach((cardData) => {
+      if (cardData && cardData._id) {
+        renderCard(cardData, "end");
+      } else {
+        console.warn("Пропущена карточка с неполными данными:", cardData);
+      }
+    });
   };
 
   const setupCardEventListeners = (cardElement) => {
-    cardElement
-      .querySelector(".card__like-button")
-      .addEventListener("click", handleLikeClick);
+    if (!cardElement) return;
 
-    cardElement
-      .querySelector(".card__delete-button")
-      .addEventListener("click", () => deleteCard(cardElement));
+    const likeButton = cardElement.querySelector(".card__like-button");
+    const deleteButton = cardElement.querySelector(".card__delete-button");
+
+    safeAddEventListener(likeButton, "click", handleLikeClick);
+    
+    if (deleteButton) {
+      safeAddEventListener(deleteButton, "click", () => deleteCard(cardElement));
+    }
   };
 
   return {
