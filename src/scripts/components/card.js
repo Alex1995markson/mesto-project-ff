@@ -5,8 +5,6 @@ import {
   dislikeCard as apiUnlikeCard,
 } from "../api/api";
 
-const currentUserId = "86912a5de8fb5c0ddfcf9a3b";
-
 export const createCardUtils = (domElements, popupUtils, openImagePopup) => {
   // Функция проверки существования элемента перед добавлением обработчика
   const safeAddEventListener = (element, event, handler) => {
@@ -17,7 +15,8 @@ export const createCardUtils = (domElements, popupUtils, openImagePopup) => {
     }
   };
 
-  const createCardElement = ({ name, link, likes = [], _id, owner = {} }) => {
+  const createCardElement = ({ name, link, likes = [], _id, owner = {} }, ownerId) => {
+
     // Проверка обязательных полей
     if (!_id || !name || !link) {
       console.error("Неполные данные карточки:", { name, link, _id, owner });
@@ -43,11 +42,10 @@ export const createCardUtils = (domElements, popupUtils, openImagePopup) => {
         titleElement.textContent = name;
       }
 
-      console.log("id", _id);
       cardElement.dataset.cardId = _id;
 
       // Проверяем, лайкнул ли текущий пользователь карточку
-      const isLiked = likes.some(user => user && user._id === currentUserId);
+      const isLiked = likes.some(user => user && user._id === ownerId);
       const likeButton = cardElement.querySelector(".card__like-button");
       if (likeButton && isLiked) {
         likeButton.classList.add("card__like-button_is-active");
@@ -56,7 +54,7 @@ export const createCardUtils = (domElements, popupUtils, openImagePopup) => {
       // Показываем иконку удаления только для своих карточек
       const deleteButton = cardElement.querySelector(".card__delete-button");
       if (deleteButton) {
-        if (owner._id !== currentUserId) {
+        if (owner._id !== ownerId) {
           deleteButton.remove();
         }
       }
@@ -72,15 +70,15 @@ export const createCardUtils = (domElements, popupUtils, openImagePopup) => {
     }
   };
 
-  const renderCard = (cardData, position = "start") => {
-    const cardElement = createCardElement(cardData);
+  const renderCard = (cardData, position = "start", ownerId) => {
+    const cardElement = createCardElement(cardData, ownerId);
     
     if (!cardElement) {
       console.warn("Не удалось создать элемент карточки", cardData);
       return;
     }
     
-    setupCardEventListeners(cardElement);
+    setupCardEventListeners(cardElement, ownerId);
 
     if (position === "end") {
       domElements.cardsContainer.append(cardElement);
@@ -126,7 +124,7 @@ export const createCardUtils = (domElements, popupUtils, openImagePopup) => {
       });
   };
 
-  const handleLikeClick = (evt) => {
+  const handleLikeClick = (evt, ownerId) => {
     const likeButton = evt.target;
     const cardElement = likeButton.closest(".places__item");
     
@@ -140,7 +138,7 @@ export const createCardUtils = (domElements, popupUtils, openImagePopup) => {
     const currentCount = parseInt(likeCounter?.textContent) || 0;
     
     if (likeCounter) {
-      likeCounter.textContent = isLiked ? currentCount - 1 : currentCount + 1;
+        likeCounter.textContent = isLiked ? currentCount - 1 : currentCount + 1;
     }
     
     likeButton.classList.toggle("card__like-button_is-active");
@@ -148,34 +146,35 @@ export const createCardUtils = (domElements, popupUtils, openImagePopup) => {
     const apiCall = isLiked ? apiUnlikeCard(cardId) : apiLikeCard(cardId);
 
     apiCall
-      .then((updatedCard) => {
-        if (likeCounter) {
-          likeCounter.textContent = updatedCard.likes.length;
-        }
+        .then((updatedCard) => {
+            if (likeCounter) {
+                likeCounter.textContent = updatedCard.likes.length;
+            }
 
-        const isActuallyLiked = updatedCard.likes.some(
-          (user) => user && user._id === currentUserId
-        );
+            // Используем переданный ownerId вместо глобальной переменной
+            const isActuallyLiked = updatedCard.likes.some(
+                (user) => user && user._id === ownerId
+            );
 
-        if (isActuallyLiked) {
-          likeButton.classList.add("card__like-button_is-active");
-        } else {
-          likeButton.classList.remove("card__like-button_is-active");
-        }
-      })
-      .catch((err) => {
-        console.error("Ошибка при обновлении лайка:", err);
-        if (likeCounter) {
-          likeCounter.textContent = currentCount;
-        }
-        likeButton.classList.toggle("card__like-button_is-active");
-      })
-      .finally(() => {
-        likeButton.disabled = false;
-      });
-  };
+            if (isActuallyLiked) {
+                likeButton.classList.add("card__like-button_is-active");
+            } else {
+                likeButton.classList.remove("card__like-button_is-active");
+            }
+        })
+        .catch((err) => {
+            console.error("Ошибка при обновлении лайка:", err);
+            if (likeCounter) {
+                likeCounter.textContent = currentCount;
+            }
+            likeButton.classList.toggle("card__like-button_is-active");
+        })
+        .finally(() => {
+            likeButton.disabled = false;
+        });
+};
 
-  const renderInitialCards = (cards) => {
+  const renderInitialCards = (cards, userId) => {
     if (!cards || !Array.isArray(cards)) {
       console.error("Некорректные данные карточек:", cards);
       return;
@@ -183,25 +182,27 @@ export const createCardUtils = (domElements, popupUtils, openImagePopup) => {
     
     cards.forEach((cardData) => {
       if (cardData && cardData._id) {
-        renderCard(cardData, "end");
+        renderCard(cardData, "end", userId);
       } else {
         console.warn("Пропущена карточка с неполными данными:", cardData);
       }
     });
   };
 
-  const setupCardEventListeners = (cardElement) => {
+const setupCardEventListeners = (cardElement, ownerId) => {
     if (!cardElement) return;
 
     const likeButton = cardElement.querySelector(".card__like-button");
     const deleteButton = cardElement.querySelector(".card__delete-button");
 
-    safeAddEventListener(likeButton, "click", handleLikeClick);
+    // Создаем обертку для handleLikeClick с передачей ownerId
+    const handleLikeClickWithOwner = (evt) => handleLikeClick(evt, ownerId);
+    safeAddEventListener(likeButton, "click", handleLikeClickWithOwner);
     
     if (deleteButton) {
-      safeAddEventListener(deleteButton, "click", () => deleteCard(cardElement));
+        safeAddEventListener(deleteButton, "click", () => deleteCard(cardElement));
     }
-  };
+};
 
   return {
     renderInitialCards,

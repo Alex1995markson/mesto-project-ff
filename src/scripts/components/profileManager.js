@@ -12,15 +12,12 @@ export const createProfileManager = (domElements, cardUtils, initialCards) => {
     return Promise.all([getUserInfo(), getInitialCards()])
       .then(([userData, cards]) => {
         renderProfile(userData);
-        // cardUtils.renderInitialCards(cards, userData._id);
-        // cardUtils.renderInitialCards(cards, userData._id);
-        cardUtils.renderInitialCards(cards);
+        cardUtils.renderInitialCards(cards, userData._id);
         return { userData, cards };
       })
       .catch((err) => {
         console.error("Ошибка при загрузке данных:", err);
-        // cardUtils.renderInitialCards(initialCards, null);
-        cardUtils.renderInitialCards(initialCards);
+        cardUtils.renderInitialCards(initialCards); // рендерем карточки по умолчанию
         return { userData: null, cards: initialCards };
       });
   };
