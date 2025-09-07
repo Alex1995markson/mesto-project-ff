@@ -10,7 +10,7 @@ module.exports = {
   output: {
     path: path.resolve(__dirname, "dist"),
     filename: "main.js",
-    publicPath: "/", // используем только в случае публикации на сервере (по-умолчанию можно оставлять пустой)
+    publicPath: "", // используем "/" только в случае публикации на сервере (по-умолчанию можно оставлять пустой)
   },
   mode: "development",
   devServer: {
