@@ -1,12 +1,6 @@
-import {
-  ErrorDescriptionTextInput,
-  ErrorDescriptionUrlInput,
-  regexPatternTextInput,
-  regexPatternUrlInput,
-} from "./constants";
-
 const showInputError = (formElement, inputElement, errorMessage, config) => {
   const errorElement = formElement.querySelector(`.${inputElement.id}-error`);
+  if (!errorElement) return;
   inputElement.classList.add(config.inputErrorClass);
   errorElement.textContent = errorMessage;
   errorElement.classList.add(config.errorClass);
@@ -15,101 +9,56 @@ const showInputError = (formElement, inputElement, errorMessage, config) => {
 const hideInputError = (formElement, inputElement, config) => {
   const errorElement = formElement.querySelector(`.${inputElement.id}-error`);
   if (!errorElement) return;
-
-  if (inputElement.classList.contains(config.inputErrorClass)) {
-    inputElement.classList.remove(config.inputErrorClass);
-  }
-
-  if (errorElement.classList.contains(config.errorClass)) {
-    errorElement.classList.remove(config.errorClass);
-  }
+  inputElement.classList.remove(config.inputErrorClass);
+  errorElement.classList.remove(config.errorClass);
   errorElement.textContent = "";
 };
 
+// Универсальный генератор текста ошибки
+const getErrorMessage = (input) => {
+  const t = (fallback) => input.title?.trim() || fallback;
+
+  if (input.validity.valueMissing) return "Вы пропустили это поле";
+  if (input.validity.tooShort) return `Минимум ${input.minLength} символ(а/ов)`;
+  if (input.validity.tooLong)  return `Максимум ${input.maxLength} символ(а/ов)`;
+  if (input.validity.typeMismatch) {
+    return t("Введите корректное значение");
+  }
+  if (input.validity.patternMismatch) {
+    // текст можно задать через title на самом инпуте
+    return t("Неверный формат");
+  }
+  return input.validationMessage || "Некорректное значение";
+};
+
 const checkInputValidity = (formElement, inputElement, config) => {
-  const validationRules = {
-    [config.elementProfileName]: {
-      regex: regexPatternTextInput,
-      errorMessage: ErrorDescriptionTextInput,
-    },
-    [config.elementProfileDescription]: {
-      regex: regexPatternTextInput,
-      errorMessage: ErrorDescriptionTextInput,
-    },
-    [config.elementCardName]: {
-      regex: regexPatternTextInput,
-      errorMessage: ErrorDescriptionTextInput,
-    },
-    [config.elementCardUrl]: {
-      regex: regexPatternUrlInput,
-      errorMessage: ErrorDescriptionUrlInput,
-    },
-  };
-
-  const rule = validationRules[inputElement.id] || {};
-  const isValidPattern = rule.regex
-    ? rule.regex.test(inputElement.value)
-    : true;
-
-  if (!isValidPattern) {
-    inputElement.setCustomValidity(rule.errorMessage || "");
-    showInputError(
-      formElement,
-      inputElement,
-      rule.errorMessage || inputElement.validationMessage,
-      config
-    );
+  if (!inputElement.validity.valid) {
+    inputElement.setCustomValidity(""); 
+    const msg = getErrorMessage(inputElement);
+    showInputError(formElement, inputElement, msg, config);
   } else {
     inputElement.setCustomValidity("");
     hideInputError(formElement, inputElement, config);
   }
-
-  if (!inputElement.validity.valid) {
-    showInputError(
-      formElement,
-      inputElement,
-      inputElement.validationMessage,
-      config
-    );
-  }
 };
 
-const hasInvalidInput = (inputList, config) => {
-  const validationRules = {
-    [config.elementProfileName]: regexPatternTextInput,
-    [config.elementProfileDescription]: regexPatternTextInput,
-    [config.elementCardName]: regexPatternTextInput,
-    [config.elementCardUrl]: regexPatternUrlInput,
-  };
-
-  return inputList.some((inputElement) => {
-    const rule = validationRules[inputElement.id];
-    const isValidPattern = rule ? rule.test(inputElement.value) : true;
-
-    return !isValidPattern || !inputElement.validity.valid;
-  });
-};
+const hasInvalidInput = (inputList) =>
+  inputList.some((input) => !input.validity.valid);
 
 const toggleButtonState = (inputList, buttonElement, config) => {
-  if (hasInvalidInput(inputList, config)) {
-    buttonElement.disabled = true;
-    buttonElement.classList.add(config.inactiveButtonClass);
-  } else {
-    buttonElement.disabled = false;
-    buttonElement.classList.remove(config.inactiveButtonClass);
-  }
+  const invalid = hasInvalidInput(inputList);
+  buttonElement.disabled = invalid;
+  buttonElement.classList.toggle(config.inactiveButtonClass, invalid);
 };
 
 const setEventListeners = (formElement, config) => {
-  const inputList = Array.from(
-    formElement.querySelectorAll(config.inputSelector)
-  );
+  const inputList = Array.from(formElement.querySelectorAll(config.inputSelector));
   const buttonElement = formElement.querySelector(config.submitButtonSelector);
 
   toggleButtonState(inputList, buttonElement, config);
 
   inputList.forEach((inputElement) => {
-    inputElement.addEventListener("input", function () {
+    inputElement.addEventListener("input", () => {
       checkInputValidity(formElement, inputElement, config);
       toggleButtonState(inputList, buttonElement, config);
     });
@@ -119,20 +68,17 @@ const setEventListeners = (formElement, config) => {
 const enableValidation = (config) => {
   const formList = Array.from(document.querySelectorAll(config.formSelector));
   formList.forEach((formElement) => {
-    formElement.addEventListener("submit", function (evt) {
-      evt.preventDefault();
-    });
+    formElement.addEventListener("submit", (evt) => evt.preventDefault());
     setEventListeners(formElement, config);
   });
 };
 
-// Очистка ошибок валидации
+// Очистка ошибок валидации — только внутри данной формы
 const clearValidation = (formElement, config) => {
-  const inputList = Array.from(document.querySelectorAll(config.inputSelector));
-
+  const inputList = Array.from(formElement.querySelectorAll(config.inputSelector));
   inputList.forEach((inputElement) => {
+    inputElement.setCustomValidity("");
     hideInputError(formElement, inputElement, config);
-    inputElement.setCustomValidity(""); // Сбрасываем кастомные сообщения
   });
 };
 
