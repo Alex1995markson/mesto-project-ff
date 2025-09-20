@@ -1,9 +1,8 @@
 export const createPopupUtils = () => {
-  const handleEscapeKey = (evt) => {
-    if (evt.key === "Escape") {
-      const openedPopup = document.querySelector(".popup_is-opened");
-      if (openedPopup) closePopup(openedPopup);
-    }
+  const initPopups = () => {
+    document.querySelectorAll(".popup").forEach((popup) => {
+      popup.classList.add("popup_is-animated");
+    });
   };
 
   const openPopup = (popup) => {
@@ -34,10 +33,11 @@ export const createPopupUtils = () => {
     }
   };
 
-  const initPopups = () => {
-    document.querySelectorAll(".popup").forEach((popup) => {
-      popup.classList.add("popup_is-animated");
-    });
+  const handleEscapeKey = (evt) => {
+    if (evt.key === "Escape") {
+      const openedPopup = document.querySelector(".popup_is-opened");
+      if (openedPopup) closePopup(openedPopup);
+    }
   };
 
   return {
