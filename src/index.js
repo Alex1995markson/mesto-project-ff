@@ -24,6 +24,15 @@ const cacheDomElements = () => {
 const initApp = () => {
   const domElements = cacheDomElements();
   const popupUtils = createPopupUtils();
+  
+  // Функция для открытия попапа с изображением
+  const openImagePopup = (imageUrl, imageAlt) => {
+    domElements.imgPopup.src = imageUrl;
+    domElements.imgPopup.alt = imageAlt;
+    domElements.namePopup.textContent = imageAlt;
+    popupUtils.openPopup(domElements.imgContainerPopup);
+  };
+
   const profileUtils = createProfileUtils(domElements, popupUtils);
   const cardUtils = createCardUtils(domElements, popupUtils, openImagePopup);
   
@@ -36,13 +45,7 @@ const initApp = () => {
   enableValidation(validationConfig);
   popupUtils.initPopups();
 
-  // Функция для открытия попапа с изображением
-  const openImagePopup = (imageUrl, imageAlt) => {
-    domElements.imgPopup.src = imageUrl;
-    domElements.imgPopup.alt = imageAlt;
-    domElements.namePopup.textContent = imageAlt;
-    popupUtils.openPopup(domElements.imgContainerPopup);
-  };
+
 
   // Функция для обработки создания карточки
   const handleCardFormSubmit = (evt) => {
