@@ -18,22 +18,25 @@ const hideInputError = (formElement, inputElement, config) => {
 const getErrorMessage = (input) => {
   const t = (fallback) => input.title?.trim() || fallback;
 
-  if (input.validity.valueMissing) return "Вы пропустили это поле";
-  if (input.validity.tooShort) return `Минимум ${input.minLength} символ(а/ов)`;
-  if (input.validity.tooLong)  return `Максимум ${input.maxLength} символ(а/ов)`;
-  if (input.validity.typeMismatch) {
-    return t("Введите корректное значение");
+  if (input.validity.valueMissing) {
+    return "Вы пропустили это поле";
   }
   if (input.validity.patternMismatch) {
     // текст можно задать через title на самом инпуте
     return t("Неверный формат");
   }
+  if (input.validity.tooShort) return `Минимум ${input.minLength} символ(а/ов)`;
+  if (input.validity.tooLong) return `Максимум ${input.maxLength} символ(а/ов)`;
+  if (input.validity.typeMismatch) {
+    return "Введите корректное значение";
+  }
+
   return input.validationMessage || "Некорректное значение";
 };
 
 const checkInputValidity = (formElement, inputElement, config) => {
   if (!inputElement.validity.valid) {
-    inputElement.setCustomValidity(""); 
+    inputElement.setCustomValidity("");
     const msg = getErrorMessage(inputElement);
     showInputError(formElement, inputElement, msg, config);
   } else {
@@ -52,7 +55,9 @@ const toggleButtonState = (inputList, buttonElement, config) => {
 };
 
 const setEventListeners = (formElement, config) => {
-  const inputList = Array.from(formElement.querySelectorAll(config.inputSelector));
+  const inputList = Array.from(
+    formElement.querySelectorAll(config.inputSelector)
+  );
   const buttonElement = formElement.querySelector(config.submitButtonSelector);
 
   toggleButtonState(inputList, buttonElement, config);
@@ -73,13 +78,26 @@ const enableValidation = (config) => {
   });
 };
 
-// Очистка ошибок валидации — только внутри данной формы
-const clearValidation = (formElement, config) => {
-  const inputList = Array.from(formElement.querySelectorAll(config.inputSelector));
+const clearValidation = (formElement, config, { forceDisable = true } = {}) => {
+  const inputList = Array.from(
+    formElement.querySelectorAll(config.inputSelector)
+  );
   inputList.forEach((inputElement) => {
     inputElement.setCustomValidity("");
     hideInputError(formElement, inputElement, config);
   });
+
+  const buttonElement = formElement.querySelector(config.submitButtonSelector);
+  if (!buttonElement) return;
+
+  if (forceDisable) {
+    // Жёстко выключаем при открытии
+    buttonElement.disabled = true;
+    buttonElement.classList.add(config.inactiveButtonClass);
+  } else {
+    // Или пересчитываем по валидности полей
+    toggleButtonState(inputList, buttonElement, config);
+  }
 };
 
 export { enableValidation, clearValidation };
