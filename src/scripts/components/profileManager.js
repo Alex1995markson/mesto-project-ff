@@ -1,10 +1,11 @@
 import { getUserInfo, getInitialCards } from "../api/api.js";
 
 export const createProfileManager = (domElements, cardUtils, initialCards) => {
-  // Функция рендеринга профиля
+  // Функция рендеринга профиля (name, about, avatar)
   const renderProfile = (userData) => {
     domElements.profileTitle.textContent = userData.name;
     domElements.profileDescription.textContent = userData.about;
+    domElements.profileImage.style.backgroundImage = `url('${userData.avatar}')`;
   };
 
   // Загрузка и инициализация данных

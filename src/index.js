@@ -1,5 +1,5 @@
 import "./pages/index.css";
-import { initialCards } from "./scripts/initialData";
+import { initialCards } from "./scripts/components/data/initialData.js";
 import { validationConfig, DOM_SELECTORS } from "./scripts/settings.js";
 import { createProfileUtils } from "./scripts/components/profileUtils.js";
 import { createPopupUtils } from "./scripts/components/modalWindows";
@@ -26,6 +26,7 @@ const initApp = () => {
   const popupUtils = createPopupUtils();
   const profileUtils = createProfileUtils(domElements, popupUtils);
   const cardUtils = createCardUtils(domElements, popupUtils, openImagePopup);
+  
   const profileManager = createProfileManager(
     domElements,
     cardUtils,

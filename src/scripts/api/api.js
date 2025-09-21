@@ -18,11 +18,11 @@ export const editProfile = ({ name, about }) => {
   }).then(checkResponse);
 };
 
-export const updateAvatar = (avatar) => {
+export const updateAvatar = (url) => {
   return fetch(`${config.baseUrl}/users/me/avatar`, {
     method: "PATCH",
     headers: config.headers,
-    body: JSON.stringify({ avatar }),
+    body: JSON.stringify({avatar: url}),
   }).then(checkResponse);
 };
 

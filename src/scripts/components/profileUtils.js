@@ -38,21 +38,20 @@ export const createProfileUtils = (domElements, popupUtils) => {
 
   const handleAvatarFormSubmit = (evt) => {
     evt.preventDefault();
-    const avatarUrl = domElements.inputAvatar.value.trim();
+    const url = (domElements.inputAvatar.value ?? '').trim();
 
     const submitButton =
       domElements.avatarEditForm.querySelector(".popup__button");
     const originalButtonText = submitButton.textContent;
     submitButton.textContent = "Сохранение...";
-    submitButton.disabled = true;
 
     // Сбрасываем предыдущие ошибки
     const errorElement =
       domElements.avatarEditForm.querySelector(".popup__error");
     errorElement.textContent = "";
     errorElement.classList.remove("popup__error_visible");
-
-    return updateAvatar(avatarUrl)
+      
+    return updateAvatar(url)
       .then((userData) => {
         domElements.profileImage.style.backgroundImage = `url('${userData.avatar}')`;
         popupUtils.closePopup(domElements.avatarEditPopup);
@@ -68,7 +67,6 @@ export const createProfileUtils = (domElements, popupUtils) => {
       })
       .finally(() => {
         submitButton.textContent = originalButtonText;
-        submitButton.disabled = false;
       });
   };
 
