@@ -41,12 +41,13 @@
         <form class="popup__form" name="edit-profile" novalidate>
           <input type="text" name="name" class="popup__input popup__input_type_name" id="profile-name" placeholder="Имя"
             minlength="2" maxlength="40" pattern="[A-Za-zА-Яа-яЁё\s\-]+" inputmode="text"
-            title="Разрешены только латинские, кириллические буквы, знаки дефиса и пробелы" required>
+            data-error-pattern="Разрешены только латинские, кириллические буквы, знаки дефиса и пробелы" required>
           <span class="popup__error profile-name-error"></span>
 
           <input type="text" name="description" class="popup__input popup__input_type_description"
             id="profile-description" placeholder="Занятие" minlength="2" maxlength="200" pattern="[A-Za-zА-Яа-яЁё\s\-]+"
-            inputmode="text" title="Разрешены только латинские, кириллические буквы, знаки дефиса и пробелы" required>
+            inputmode="text"
+            data-error-pattern="Разрешены только латинские, кириллические буквы, знаки дефиса и пробелы" required>
           <span class="popup__error profile-description-error"></span>
 
           <button type="submit" class="button popup__button">Сохранить</button>
@@ -59,7 +60,8 @@
         <h3 class="popup__title">Обновить аватар</h3>
         <form class="popup__form" name="edit-avatar" novalidate>
           <input type="url" name="link" class="popup__input popup__input_avatar_url" id="avatar-url"
-            placeholder="Ссылка на картинку" pattern="^https?:\/\/.+" title="Введите корректный URL" required>
+            placeholder="Ссылка на картинку" pattern="^https?:\/\/.+" data-error-pattern="Введите корректный URL"
+            required>
           <span class="popup__error avatar-url-error"></span>
           <button type="submit" class="button popup__button avatar__url-button">Сохранить</button>
         </form>
@@ -72,12 +74,13 @@
         <form class="popup__form" name="new-place" novalidate>
           <input type="text" name="place-name" class="popup__input popup__input_type_card-name" id="card-name"
             placeholder="Название" minlength="2" maxlength="30"
-            title="Разрешены только латинские, кириллические буквы, знаки дефиса и пробелы"
+            data-error-pattern="Разрешены только латинские, кириллические буквы, знаки дефиса и пробелы"
             pattern="[A-Za-zА-Яа-яЁё\s\-]+" inputmode="text" required>
           <span class="popup__error card-name-error"></span>
 
           <input type="url" name="link" class="popup__input popup__input_type_url" id="card-url"
-            placeholder="Ссылка на картинку" pattern="^https?:\/\/.+" title="Введите корректный URL" required>
+            placeholder="Ссылка на картинку" pattern="^https?:\/\/.+" data-error-pattern="Введите корректный URL"
+            required>
           <span class="popup__error card-url-error"></span>
 
           <button type="submit" class="button popup__button">Сохранить</button>

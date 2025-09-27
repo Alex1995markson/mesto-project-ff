@@ -63,7 +63,9 @@ export function createCard(
   // 2) Лайк/дизлайк — без оптимистичного апдейта
   if (likeBtn) {
     likeBtn.addEventListener("click", async () => {
-      const isActive = likeBtn.classList.contains("card__like-button_is-active");
+      const isActive = likeBtn.classList.contains(
+        "card__like-button_is-active"
+      );
       const cardId = cardElement.dataset.cardId;
 
       likeBtn.disabled = true;

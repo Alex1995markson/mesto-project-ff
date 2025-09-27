@@ -16,31 +16,29 @@ const hideInputError = (formElement, inputElement, config) => {
 
 // Универсальный генератор текста ошибки
 const getErrorMessage = (input) => {
-  const t = (fallback) => input.title?.trim() || fallback;
-
-  if (input.validity.valueMissing) {
-    return "Вы пропустили это поле";
-  }
   if (input.validity.patternMismatch) {
-    // текст можно задать через title на самом инпуте
-    return t("Неверный формат");
+    const custom = input.dataset.errorPattern?.trim();
+    // если data-атрибута нет, используем нативное сообщение
+    return custom || input.validationMessage || "Неверный формат";
   }
-  if (input.validity.tooShort) return `Минимум ${input.minLength} символ(а/ов)`;
-  if (input.validity.tooLong) return `Максимум ${input.maxLength} символ(а/ов)`;
-  if (input.validity.typeMismatch) {
-    return "Введите корректное значение";
-  }
-
   return input.validationMessage || "Некорректное значение";
 };
 
 const checkInputValidity = (formElement, inputElement, config) => {
+  // 1) всегда сбрасываем кастомную ошибку перед проверкой
+  inputElement.setCustomValidity("");
+
   if (!inputElement.validity.valid) {
-    inputElement.setCustomValidity("");
+    // 2) только для patternMismatch выставляем кастомный текст (если есть)
+    if (inputElement.validity.patternMismatch) {
+      const custom = inputElement.dataset.errorPattern?.trim();
+      if (custom) inputElement.setCustomValidity(custom);
+    }
+
+    // 3) отображаем текст (учтёт либо ваш кастом, либо нативный)
     const msg = getErrorMessage(inputElement);
     showInputError(formElement, inputElement, msg, config);
   } else {
-    inputElement.setCustomValidity("");
     hideInputError(formElement, inputElement, config);
   }
 };
