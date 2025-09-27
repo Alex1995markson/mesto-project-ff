@@ -60,46 +60,37 @@ export function createCard(
     cardImage.addEventListener("click", () => onImageClick(link, name));
   }
 
-  // 2) Лайк/дизлайк
+  // 2) Лайк/дизлайк — без оптимистичного апдейта
   if (likeBtn) {
     likeBtn.addEventListener("click", async () => {
-      const isActive = likeBtn.classList.contains(
-        "card__like-button_is-active"
-      );
+      const isActive = likeBtn.classList.contains("card__like-button_is-active");
       const cardId = cardElement.dataset.cardId;
-      const currentCount = parseInt(likeCountEl?.textContent) || 0;
 
-      // Оптимистичный апдейт
       likeBtn.disabled = true;
-      likeBtn.classList.toggle("card__like-button_is-active");
-      if (likeCountEl)
-        likeCountEl.textContent = isActive
-          ? currentCount - 1
-          : currentCount + 1;
 
       try {
         const updated = isActive
           ? await apiUnlikeCard(cardId)
           : await apiLikeCard(cardId);
 
-        // Синхронизация с сервером
+        // Обновляем UI строго по факту ответа сервера
         const likedNow = updated.likes.some((u) => u && u._id === userId);
-        if (likedNow) likeBtn.classList.add("card__like-button_is-active");
-        else likeBtn.classList.remove("card__like-button_is-active");
-        if (likeCountEl) likeCountEl.textContent = updated.likes.length;
+        if (likedNow) {
+          likeBtn.classList.add("card__like-button_is-active");
+        } else {
+          likeBtn.classList.remove("card__like-button_is-active");
+        }
+        if (likeCountEl) likeCountEl.textContent = String(updated.likes.length);
 
         if (typeof onLikeChange === "function") onLikeChange(updated);
       } catch (e) {
         console.error("Ошибка при переключении лайка:", e);
-        // Откат оптимистичного апдейта
-        likeBtn.classList.toggle("card__like-button_is-active");
-        if (likeCountEl) likeCountEl.textContent = String(currentCount);
+        // Ничего не меняем в DOM — оставляем текущее состояние
       } finally {
         likeBtn.disabled = false;
       }
     });
   }
-
   // 3) Удаление карточки
   if (deleteBtn) {
     deleteBtn.addEventListener("click", async () => {
